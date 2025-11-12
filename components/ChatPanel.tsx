@@ -59,7 +59,7 @@ export default function ChatPanel() {
   };
 
   return (
-    <div className="bg-zinc-900 rounded-xl border border-zinc-800 flex flex-col h-[400px]">
+    <div className="h-full flex flex-col">
       <div className="p-4 border-b border-zinc-800">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <Icon name="chat" size={20} className="text-blue-400" />

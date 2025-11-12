@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
-import TranscriptPanel from "@/components/TranscriptPanel";
-import SummaryCard from "@/components/SummaryCard";
-import VoiceAssistant from "@/components/VoiceAssistant";
-import ChatPanel from "@/components/ChatPanel";
-import ConnectionStatus from "@/components/ConnectionStatus";
+import Sidebar from "@/components/Sidebar";
 import Icon from "@/components/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { initWebRTC } from "@/lib/webrtc";
@@ -19,37 +15,35 @@ export default function RoomPage() {
   const {
     peers,
     localStream,
-    transcripts,
-    summary,
+    mySocketId,
+    setRoomId,
     setLocalStream,
     setPeers,
-    addTranscript,
-    setSummary,
     setMySocketId,
   } = useRoomStore();
   const [isConnected, setIsConnected] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string[]>([]);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Debug logging
+  // Set room ID in store
   useEffect(() => {
-    const addDebug = (msg: string) => {
-      setDebugInfo((prev) => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: ${msg}`]);
-    };
+    if (roomId) {
+      setRoomId(roomId);
+    }
+  }, [roomId, setRoomId]);
 
-    // Monitor socket connection
+  // Monitor socket connection
+  useEffect(() => {
     const initSocket = async () => {
       const { getSocket } = await import("@/lib/socket");
       const socket = getSocket();
       
       const onConnect = () => {
-        setDebugInfo((prev) => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: Socket connected`]);
         setIsConnected(true);
+        setIsLoading(false);
       };
       
       const onDisconnect = () => {
-        setDebugInfo((prev) => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: Socket disconnected`]);
         setIsConnected(false);
       };
 
@@ -58,7 +52,7 @@ export default function RoomPage() {
 
       if (socket.connected) {
         setIsConnected(true);
-        setDebugInfo((prev) => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: Socket already connected`]);
+        setIsLoading(false);
       }
 
       return () => {
@@ -82,167 +76,172 @@ export default function RoomPage() {
 
     let cleanup: (() => void) | undefined;
     let stream: MediaStream | null = null;
+    let mounted = true;
 
     const setupMedia = async () => {
       try {
+        setIsLoading(true);
         // First, ensure socket is initialized
         const { getSocket } = await import("@/lib/socket");
         const socket = getSocket();
         
-        // Wait a bit for socket to connect if needed
+        // Wait for socket to connect
         if (!socket.connected) {
           console.log("⏳ Waiting for socket connection...");
           await new Promise((resolve) => {
             if (socket.connected) {
               resolve(undefined);
             } else {
-              socket.once("connect", () => resolve(undefined));
-              // Timeout after 5 seconds
-              setTimeout(() => resolve(undefined), 5000);
+              const timeout = setTimeout(() => resolve(undefined), 10000);
+              socket.once("connect", () => {
+                clearTimeout(timeout);
+                resolve(undefined);
+              });
             }
           });
         }
 
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        setLocalStream(stream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        if (!socket.connected || !mounted) {
+          throw new Error("Socket connection timeout");
         }
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user"
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+        });
+
+        if (!mounted) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        setLocalStream(stream);
 
         console.log("🎥 Media stream obtained, initializing WebRTC...");
         // Initialize WebRTC connections
-        cleanup = await initWebRTC(roomId, stream, setPeers, addTranscript, setMySocketId);
-        setIsConnected(true);
-        console.log("✅ WebRTC initialized");
-      } catch (error) {
+        cleanup = await initWebRTC(roomId, stream, setPeers, setMySocketId);
+        
+        if (mounted) {
+          setIsConnected(true);
+          setIsLoading(false);
+          console.log("✅ WebRTC initialized");
+        }
+      } catch (error: any) {
         console.error("❌ Error setting up media/WebRTC:", error);
-        alert("Please allow camera and microphone access");
+        if (mounted) {
+          setIsLoading(false);
+          if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+            alert("Please allow camera and microphone access to join the room");
+          } else {
+            alert(`Error: ${error.message || "Failed to setup media"}`);
+          }
+        }
       }
     };
 
     setupMedia();
 
     return () => {
+      console.log("🧹 Cleaning up room page");
+      mounted = false;
       if (cleanup) {
         cleanup();
       }
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
-      if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
-      }
+      setLocalStream(null);
+      setPeers(new Map());
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
 
   return (
-    <div className="min-h-screen bg-black p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 bg-zinc-900 rounded-xl border border-zinc-800 p-5">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <h1 className="text-2xl font-bold text-white">
-                  Study Room
-                </h1>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-gray-400">
-                    {isConnected ? "Connected" : "Connecting..."}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-sm text-gray-400 font-mono bg-zinc-800 px-3 py-1.5 rounded border border-zinc-700">
-                  {roomId}
-                </p>
-                <button
-                  onClick={copyShareLink}
-                  className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded border border-zinc-700"
-                >
-                  {copied ? (
-                    <>
-                      <Icon name="check" size={16} className="text-green-400" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="copy" size={16} />
-                      Share
-                    </>
-                  )}
-                </button>
-              </div>
+    <div className="h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-800/50 px-6 py-4 flex-shrink-0 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Study Room
+            </h1>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isConnected 
+                    ? "bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" 
+                    : "bg-red-500"
+                }`}
+              />
+              <span className="text-sm text-gray-300 font-medium">
+                {isConnected ? "Connected" : "Connecting..."}
+              </span>
             </div>
+            <p className="text-xs text-gray-400 font-mono bg-zinc-800/50 px-3 py-1.5 rounded-lg border border-zinc-700/50">
+              {roomId}
+            </p>
             <button
-              onClick={() => router.push("/")}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              onClick={copyShareLink}
+              className="text-sm text-blue-400 hover:text-blue-300 transition-all duration-200 flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-lg border border-zinc-700/50 hover:border-blue-500/50"
             >
-              Leave
+              {copied ? (
+                <>
+                  <Icon name="check" size={14} className="text-green-400" />
+                  <span className="text-green-400">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Icon name="copy" size={14} />
+                  Share
+                </>
+              )}
             </button>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Video Grid */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <Icon name="video" size={20} className="text-blue-400" />
-                  Your Video
-                </h2>
-                <div className="relative rounded-lg overflow-hidden bg-black aspect-video border border-zinc-800">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <Icon name="users" size={20} className="text-blue-400" />
-                  Participants ({peers.size})
-                </h2>
-                <VideoGrid peers={peers} />
-              </div>
-            </div>
-            
-            {/* Debug Info */}
-            {process.env.NODE_ENV === "development" && (
-              <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-4">
-                <h3 className="text-sm font-semibold text-white mb-2">Debug Info</h3>
-                <div className="text-xs text-gray-400 space-y-1 max-h-32 overflow-y-auto">
-                  {debugInfo.map((info, idx) => (
-                    <div key={idx}>{info}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <ConnectionStatus />
-            <ChatPanel />
-            <TranscriptPanel transcripts={transcripts} />
-            <SummaryCard summary={summary} />
-            <VoiceAssistant text={summary || "No summary available yet"} />
-          </div>
+          <button
+            onClick={() => router.push("/")}
+            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/40"
+          >
+            Leave
+          </button>
         </div>
       </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p className="text-gray-400 text-sm">Setting up your connection...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content: 80% Video Grid, 20% Sidebar */}
+      {!isLoading && (
+        <div className="flex-1 flex overflow-hidden animate-in fade-in duration-500">
+          {/* Video Grid - 80% */}
+          <div className="w-[80%] bg-gradient-to-br from-zinc-950 to-black p-4">
+            <VideoGrid
+              peers={peers}
+              localStream={localStream}
+              mySocketId={mySocketId}
+            />
+          </div>
+
+          {/* Sidebar - 20% */}
+          <div className="w-[20%] min-w-[300px]">
+            <Sidebar />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

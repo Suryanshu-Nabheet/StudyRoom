@@ -120,17 +120,12 @@ Deploy `server.js` to Render, Fly.io, or Railway:
 ```
 /app
   /page.tsx              # Home page (join/create room)
-  /room/[id]/page.tsx    # Room page with video/transcripts
-  /api
-    /transcribe          # Whisper API transcription
-    /summarize           # OpenRouter summarization
+  /room/[id]/page.tsx    # Room page with video grid and sidebar
 /components
-  VideoGrid.tsx          # Peer video display
-  TranscriptPanel.tsx    # Live transcript feed
-  SummaryCard.tsx        # AI summary display
-  VoiceAssistant.tsx    # TTS study buddy
+  VideoGrid.tsx          # Peer video display (Zoom-like grid)
   ChatPanel.tsx          # Real-time chat
   ConnectionStatus.tsx   # Connection monitoring
+  Sidebar.tsx            # Tabbed sidebar (Chat, Participants, Details)
   JoinRoom.tsx           # Room join/create UI
   Icon.tsx               # SVG icon component
 /lib
@@ -144,12 +139,12 @@ Deploy `server.js` to Render, Fly.io, or Railway:
 
 ## Important Notes
 
-- Audio is transcribed every 10 seconds
-- Summaries are generated every minute from the last 5 transcripts
 - All media is peer-to-peer (no server recordings)
 - Requires HTTPS in production for WebRTC
-- OpenRouter API key is used for both transcription and summarization
-- SVG icons are used throughout the UI (no emojis)
+- Video grid automatically adjusts layout based on participant count (Zoom-like)
+- SVG icons are used throughout the UI
+- Real-time chat and participant management
+- Professional dark theme UI
 
 ## Contributing
 
