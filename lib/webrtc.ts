@@ -11,7 +11,8 @@ export const initWebRTC = async (
   roomId: string,
   localStream: MediaStream,
   setPeers: (peers: Map<string, PeerData>) => void,
-  setMySocketId: (id: string | null) => void
+  setMySocketId: (id: string | null) => void,
+  userName?: string
 ) => {
   const socket = getSocket();
   const peers = new Map<string, PeerData>();
@@ -160,19 +161,40 @@ export const initWebRTC = async (
     return peer;
   };
 
-  // Join room
+  // Join room (meeting title is handled by room page if creating new room)
   if (mySocketId) {
     console.log("🚪 Joining room:", roomId, "with socket ID:", mySocketId);
-    const username = `User-${mySocketId.slice(0, 6)}`;
-    socket.emit("join-room", roomId, username);
+    const displayName = userName || `User-${mySocketId.slice(0, 6)}`;
+    // Check if already joined (room page handles it for new rooms with title)
+    const hasJoined = typeof window !== "undefined" && sessionStorage.getItem("hasJoinedRoom");
+    if (!hasJoined) {
+      socket.emit("join-room", roomId, displayName);
+    }
   } else {
     throw new Error("Socket not connected");
   }
+  
+  // Listen for room metadata (meeting title) - handled by room page
 
   // When joining, new user creates peers as initiators for all existing users
   socket.on("room-users", (users: Array<{ id: string; username: string }>) => {
     if (isCleaningUp) return;
     console.log("📋 Room users received:", users.length, "users");
+    
+    // Update participants store
+    if (typeof window !== "undefined") {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        const newParticipants = new Map(store.participants);
+        users.forEach((user) => {
+          if (user && user.id && user.username) {
+            newParticipants.set(user.id, { id: user.id, username: user.username });
+          }
+        });
+        store.setParticipants(newParticipants);
+      });
+    }
+    
     if (users && users.length > 0) {
       setTimeout(() => {
         if (isCleaningUp) return;
@@ -194,7 +216,16 @@ export const initWebRTC = async (
   // When a new user joins, existing users create peer as answerer
   socket.on("user-joined", (userData: { id: string; username: string }) => {
     if (isCleaningUp) return;
-    console.log("👤 User joined:", userData.id);
+    console.log("👤 User joined:", userData.id, userData.username);
+    
+    // Update participants store
+    if (typeof window !== "undefined" && userData.id && userData.username) {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        store.addParticipant(userData.id, userData.username);
+      });
+    }
+    
     const userId = userData?.id;
     if (userId && userId !== mySocketId && !peers.has(userId)) {
       console.log("🔗 Creating peer as ANSWERER for new user:", userId);
@@ -210,6 +241,15 @@ export const initWebRTC = async (
   socket.on("user-left", (userId: string | null | undefined) => {
     if (isCleaningUp) return;
     console.log("👋 User left:", userId);
+    
+    // Remove from participants store
+    if (typeof window !== "undefined" && userId) {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        store.removeParticipant(userId);
+      });
+    }
+    
     removePeer(userId);
   });
 

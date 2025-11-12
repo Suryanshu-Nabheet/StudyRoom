@@ -16,7 +16,11 @@ export default function RoomPage() {
     peers,
     localStream,
     mySocketId,
+    meetingTitle,
+    userName,
     setRoomId,
+    setMeetingTitle,
+    setUserName,
     setLocalStream,
     setPeers,
     setMySocketId,
@@ -25,6 +29,27 @@ export default function RoomPage() {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Get userName and meetingTitle from sessionStorage on mount
+  useEffect(() => {
+    const storedName = sessionStorage.getItem("userName");
+    const storedTitle = sessionStorage.getItem("meetingTitle");
+    
+    if (storedName) {
+      setUserName(storedName);
+    }
+    if (storedTitle) {
+      setMeetingTitle(storedTitle);
+    }
+  }, [setUserName, setMeetingTitle]);
+
+  // Add current user to participants when socket ID is available
+  useEffect(() => {
+    if (mySocketId && userName) {
+      const { addParticipant } = useRoomStore.getState();
+      addParticipant(mySocketId, userName);
+    }
+  }, [mySocketId, userName]);
+
   // Set room ID in store
   useEffect(() => {
     if (roomId) {
@@ -32,7 +57,7 @@ export default function RoomPage() {
     }
   }, [roomId, setRoomId]);
 
-  // Monitor socket connection
+  // Monitor socket connection and listen for room metadata
   useEffect(() => {
     const initSocket = async () => {
       const { getSocket } = await import("@/lib/socket");
@@ -47,8 +72,16 @@ export default function RoomPage() {
         setIsConnected(false);
       };
 
+      // Listen for room metadata (meeting title)
+      const onRoomMetadata = (metadata: { title: string; createdAt: Date }) => {
+        if (metadata && metadata.title && !meetingTitle) {
+          setMeetingTitle(metadata.title);
+        }
+      };
+
       socket.on("connect", onConnect);
       socket.on("disconnect", onDisconnect);
+      socket.on("room-metadata", onRoomMetadata);
 
       if (socket.connected) {
         setIsConnected(true);
@@ -58,11 +91,12 @@ export default function RoomPage() {
       return () => {
         socket.off("connect", onConnect);
         socket.off("disconnect", onDisconnect);
+        socket.off("room-metadata", onRoomMetadata);
       };
     };
 
     initSocket();
-  }, []);
+  }, [meetingTitle, setMeetingTitle]);
 
   const copyShareLink = () => {
     const shareUrl = `${window.location.origin}?token=${roomId}`;
@@ -126,8 +160,20 @@ export default function RoomPage() {
         setLocalStream(stream);
 
         console.log("🎥 Media stream obtained, initializing WebRTC...");
+        // Get userName and meetingTitle for WebRTC
+        const currentUserName = userName || sessionStorage.getItem("userName") || `User-${Date.now()}`;
+        const currentMeetingTitle = meetingTitle || sessionStorage.getItem("meetingTitle") || null;
+        
+        // Send meeting title to server if creating new room
+        if (currentMeetingTitle && !sessionStorage.getItem("hasJoinedRoom")) {
+          const { getSocket } = await import("@/lib/socket");
+          const socket = getSocket();
+          socket.emit("join-room", roomId, currentUserName, currentMeetingTitle);
+          sessionStorage.setItem("hasJoinedRoom", "true");
+        }
+        
         // Initialize WebRTC connections
-        cleanup = await initWebRTC(roomId, stream, setPeers, setMySocketId);
+        cleanup = await initWebRTC(roomId, stream, setPeers, setMySocketId, currentUserName);
         
         if (mounted) {
           setIsConnected(true);
@@ -162,17 +208,24 @@ export default function RoomPage() {
       setPeers(new Map());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]);
+  }, [roomId, userName]);
 
   return (
     <div className="h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-800/50 px-6 py-4 flex-shrink-0 shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent whitespace-nowrap">
               Study Room
             </h1>
+            {meetingTitle && (
+              <div className="px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50 max-w-xs truncate">
+                <p className="text-sm text-gray-300 font-medium truncate" title={meetingTitle}>
+                  {meetingTitle}
+                </p>
+              </div>
+            )}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50">
               <div
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
@@ -181,16 +234,16 @@ export default function RoomPage() {
                     : "bg-red-500"
                 }`}
               />
-              <span className="text-sm text-gray-300 font-medium">
+              <span className="text-sm text-gray-300 font-medium whitespace-nowrap">
                 {isConnected ? "Connected" : "Connecting..."}
               </span>
             </div>
-            <p className="text-xs text-gray-400 font-mono bg-zinc-800/50 px-3 py-1.5 rounded-lg border border-zinc-700/50">
+            <p className="text-xs text-gray-400 font-mono bg-zinc-800/50 px-3 py-1.5 rounded-lg border border-zinc-700/50 truncate max-w-[120px]">
               {roomId}
             </p>
             <button
               onClick={copyShareLink}
-              className="text-sm text-blue-400 hover:text-blue-300 transition-all duration-200 flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-lg border border-zinc-700/50 hover:border-blue-500/50"
+              className="text-sm text-blue-400 hover:text-blue-300 transition-all duration-200 flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-lg border border-zinc-700/50 hover:border-blue-500/50 whitespace-nowrap"
             >
               {copied ? (
                 <>
@@ -207,7 +260,7 @@ export default function RoomPage() {
           </div>
           <button
             onClick={() => router.push("/")}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/40"
+            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 whitespace-nowrap ml-4"
           >
             Leave
           </button>

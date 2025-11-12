@@ -23,33 +23,38 @@ export default function Home() {
     }
   }, [searchParams]);
 
-  const createRoom = () => {
+  const createRoom = (name: string, title: string) => {
     const newRoomId = uuidv4();
+    // Store name and title in sessionStorage to pass to room page
+    sessionStorage.setItem("userName", name);
+    sessionStorage.setItem("meetingTitle", title);
     router.push(`/room/${newRoomId}`);
   };
 
-  const joinRoom = () => {
+  const joinRoom = (name: string) => {
     if (roomId.trim()) {
+      // Store name in sessionStorage
+      sessionStorage.setItem("userName", name);
       router.push(`/room/${roomId}`);
     }
   };
 
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center p-4">
+    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-white mb-4">
-            AI Study Rooms
+        <div className="text-center mb-12 animate-in fade-in">
+          <h1 className="text-7xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
+            Study Room
           </h1>
-          <p className="text-xl text-gray-400 mb-2">
-            Collaborate in real-time with AI-powered transcription
+          <p className="text-2xl text-gray-300 mb-3 font-light">
+            Connect, collaborate, and study together
           </p>
-          <p className="text-sm text-gray-500">
-            Study together, get instant summaries, and never miss important points
+          <p className="text-base text-gray-500 max-w-2xl mx-auto">
+            Premium peer-to-peer video meetings with real-time chat. No downloads, no sign-ups, just instant collaboration.
           </p>
         </div>
         
-        <div className="flex justify-center">
+        <div className="flex justify-center mb-12">
           <JoinRoom
             roomId={roomId}
             setRoomId={setRoomId}
@@ -58,32 +63,34 @@ export default function Home() {
           />
         </div>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <div className="mb-4">
-              <Icon name="video" size={32} className="text-blue-400" />
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/50 rounded-xl p-6 border border-zinc-800/50 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300 group">
+            <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+              <Icon name="video" size={36} className="text-blue-400" />
             </div>
-            <h3 className="font-semibold text-white mb-2">Video Calls</h3>
-            <p className="text-sm text-gray-400">
-              High-quality peer-to-peer video and audio connections
+            <h3 className="font-semibold text-white mb-2 text-lg">HD Video Calls</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Crystal-clear peer-to-peer video and audio connections with low latency
             </p>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <div className="mb-4">
-              <Icon name="transcript" size={32} className="text-blue-400" />
+          
+          <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/50 rounded-xl p-6 border border-zinc-800/50 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300 group">
+            <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+              <Icon name="chat" size={36} className="text-blue-400" />
             </div>
-            <h3 className="font-semibold text-white mb-2">Live Transcription</h3>
-            <p className="text-sm text-gray-400">
-              Real-time AI transcription of your conversations
+            <h3 className="font-semibold text-white mb-2 text-lg">Real-time Chat</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Instant messaging during your meetings to share notes and ideas
             </p>
           </div>
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-            <div className="mb-4">
-              <Icon name="brain" size={32} className="text-blue-400" />
+          
+          <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-800/50 rounded-xl p-6 border border-zinc-800/50 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300 group">
+            <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+              <Icon name="users" size={36} className="text-blue-400" />
             </div>
-            <h3 className="font-semibold text-white mb-2">AI Summaries</h3>
-            <p className="text-sm text-gray-400">
-              Automatic key insights and learning points
+            <h3 className="font-semibold text-white mb-2 text-lg">Easy Collaboration</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Share meeting links instantly. No accounts required, just join and start
             </p>
           </div>
         </div>
@@ -91,4 +98,3 @@ export default function Home() {
     </main>
   );
 }
-

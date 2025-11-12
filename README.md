@@ -1,25 +1,24 @@
-# AI WebRTC Study Rooms
+# Study Room
 
-A production-ready real-time collaborative study room application with AI-powered transcription, summarization, and voice assistance.
+A production-ready real-time collaborative video meeting platform with peer-to-peer connections, real-time chat, and premium UI.
 
 ## Features
 
-- **WebRTC Peer-to-Peer Video/Audio** - Direct connections between users
-- **Real-time Transcription** - AI transcribes conversations every 10 seconds
-- **AI Summarization** - OpenRouter/OpenAI generates key insights
-- **Voice Study Buddy** - Text-to-speech explanation of summaries
-- **Professional UI** - Clean, modern interface with dark theme
-- **Real-time Chat** - Text messaging during study sessions
+- **HD Video Calls** - Crystal-clear peer-to-peer video and audio connections
+- **Real-time Chat** - Instant messaging during meetings
+- **Easy Collaboration** - Share meeting links instantly, no accounts required
+- **Meeting Titles** - Name your meetings for better organization
+- **User Names** - Personalize your presence in meetings
+- **Professional UI** - Premium dark theme with smooth animations
 - **Connection Status** - Monitor WebRTC and Socket.io connections
 
 ## Tech Stack
 
 - **Frontend:** Next.js 14 (App Router) + TypeScript + TailwindCSS
 - **Realtime:** WebRTC (simple-peer) + Socket.io signaling
-- **AI:** OpenRouter API (GPT-4o-mini) + Whisper for transcription
 - **State:** Zustand
 - **UI:** Professional dark theme with SVG icons
-- **Icons:** Custom SVG icons in `/public/icons`
+- **Icons:** Custom SVG icons
 
 ## Setup
 
@@ -31,7 +30,6 @@ A production-ready real-time collaborative study room application with AI-powere
 2. **Set up environment variables:**
    Create a `.env.local` file in the root directory:
    ```
-   OPENROUTER_API_KEY=sk-or-v1-your-key-here
    NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
@@ -51,34 +49,39 @@ A production-ready real-time collaborative study room application with AI-powere
 
 ## Usage
 
-1. **Create a Room:** Click "Create New Room" to generate a unique room ID
-2. **Join a Room:** Enter a room ID and click "Join Room"
-3. **Allow Permissions:** Grant camera and microphone access
-4. **Study Together:** The AI will automatically:
-   - Transcribe your conversations every 10 seconds
-   - Generate summaries every minute
-   - Provide voice explanations on demand
+1. **Create a Meeting:**
+   - Enter your name
+   - Enter a meeting title (e.g., "Study Session - Math")
+   - Click "Create Meeting"
+
+2. **Join a Meeting:**
+   - Enter your name
+   - Enter the Room ID or paste the share link
+   - Click "Join Meeting"
+
+3. **Share Meeting:**
+   - Click the "Share" button in the meeting room
+   - Copy and share the link with others
 
 ## Project Structure
 
 ```
 /app
-  /page.tsx              # Home page (join/create room)
-  /room/[id]/page.tsx    # Room page with video/transcripts
-  /api
-    /transcribe          # Whisper API transcription
-    /summarize           # LangChain summarization
+  /page.tsx              # Home page (join/create meeting)
+  /room/[id]/page.tsx    # Room page with video grid and sidebar
 /components
-  VideoGrid.tsx          # Peer video display
-  TranscriptPanel.tsx    # Live transcript feed
-  SummaryCard.tsx        # AI summary display
-  VoiceAssistant.tsx    # TTS study buddy
+  VideoGrid.tsx          # Peer video display (Zoom-like grid)
+  ChatPanel.tsx          # Real-time chat
+  ConnectionStatus.tsx  # Connection monitoring
+  Sidebar.tsx            # Tabbed sidebar (Chat, Participants, Details)
   JoinRoom.tsx           # Room join/create UI
+  Icon.tsx               # SVG icon component
 /lib
   webrtc.ts              # WebRTC peer connections
   socket.ts              # Socket.io client
 /store
   roomStore.ts           # Zustand state management
+/public/icons            # SVG icon files
 /server.js               # Socket.io signaling server
 ```
 
@@ -88,7 +91,6 @@ A production-ready real-time collaborative study room application with AI-powere
 
 Create `.env.local` with:
 ```env
-OPENROUTER_API_KEY=sk-or-v1-your-key-here
 NEXT_PUBLIC_SOCKET_URL=https://your-signaling-server.com
 NEXT_PUBLIC_APP_URL=https://your-domain.com
 ```
@@ -113,29 +115,6 @@ Deploy `server.js` to Render, Fly.io, or Railway:
 - ✅ Environment variables configured
 - ✅ Signaling server accessible
 - ✅ CORS properly configured
-- ✅ API routes secured
-
-## Project Structure
-
-```
-/app
-  /page.tsx              # Home page (join/create room)
-  /room/[id]/page.tsx    # Room page with video grid and sidebar
-/components
-  VideoGrid.tsx          # Peer video display (Zoom-like grid)
-  ChatPanel.tsx          # Real-time chat
-  ConnectionStatus.tsx   # Connection monitoring
-  Sidebar.tsx            # Tabbed sidebar (Chat, Participants, Details)
-  JoinRoom.tsx           # Room join/create UI
-  Icon.tsx               # SVG icon component
-/lib
-  webrtc.ts              # WebRTC peer connections
-  socket.ts              # Socket.io client
-/store
-  roomStore.ts           # Zustand state management
-/public/icons            # SVG icon files
-/server.js               # Socket.io signaling server
-```
 
 ## Important Notes
 
@@ -145,6 +124,7 @@ Deploy `server.js` to Render, Fly.io, or Railway:
 - SVG icons are used throughout the UI
 - Real-time chat and participant management
 - Professional dark theme UI
+- User names and meeting titles are stored in sessionStorage
 
 ## Contributing
 
@@ -157,4 +137,3 @@ See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our community standards.
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-

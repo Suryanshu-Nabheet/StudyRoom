@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI WebRTC Study Rooms",
-  description: "Real-time collaborative study rooms with AI transcription and summarization",
+  title: "Study Room - Premium Video Meetings",
+  description: "Connect, collaborate, and study together with premium peer-to-peer video meetings",
 };
 
 export default function RootLayout({
@@ -20,4 +20,3 @@ export default function RootLayout({
     </html>
   );
 }
-

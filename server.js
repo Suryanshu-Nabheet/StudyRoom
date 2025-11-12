@@ -11,12 +11,13 @@ const io = new Server(3001, {
 
 const rooms = new Map(); // roomId -> Set of socketIds
 const users = new Map(); // socketId -> { roomId, username }
+const roomMetadata = new Map(); // roomId -> { title, createdAt }
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
   users.set(socket.id, { roomId: null, username: `User-${socket.id.slice(0, 6)}` });
 
-  socket.on("join-room", (roomId, username) => {
+  socket.on("join-room", (roomId, username, meetingTitle) => {
     try {
       // Leave previous room if any
       const userData = users.get(socket.id);
@@ -28,6 +29,13 @@ io.on("connection", (socket) => {
       
       if (!rooms.has(roomId)) {
         rooms.set(roomId, new Set());
+        // Store meeting title if provided (first user creates the room)
+        if (meetingTitle) {
+          roomMetadata.set(roomId, {
+            title: meetingTitle,
+            createdAt: new Date(),
+          });
+        }
       }
       
       const room = rooms.get(roomId);
@@ -37,7 +45,13 @@ io.on("connection", (socket) => {
       room.add(socket.id);
       users.set(socket.id, { roomId, username: username || `User-${socket.id.slice(0, 6)}` });
       
-      console.log(`User ${socket.id} joined room ${roomId}. Room now has ${room.size} users.`);
+      console.log(`User ${socket.id} (${username}) joined room ${roomId}. Room now has ${room.size} users.`);
+      
+      // Send room metadata to the new user
+      const metadata = roomMetadata.get(roomId);
+      if (metadata) {
+        socket.emit("room-metadata", metadata);
+      }
       
       // Send list of existing users to the new user
       socket.emit("room-users", otherUsers.map(id => ({
@@ -108,6 +122,7 @@ io.on("connection", (socket) => {
       
       if (room.size === 0) {
         rooms.delete(roomId);
+        roomMetadata.delete(roomId);
         console.log(`Room ${roomId} deleted (empty)`);
       } else {
         console.log(`User ${socket.id} left room ${roomId}. Room now has ${room.size} users.`);
@@ -117,4 +132,3 @@ io.on("connection", (socket) => {
 });
 
 console.log("Socket.io signaling server running on port 3001");
-
