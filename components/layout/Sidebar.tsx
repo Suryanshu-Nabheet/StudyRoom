@@ -6,6 +6,7 @@ import ChatPanel from "@/components/chat/ChatPanel";
 import ConnectionStatus from "@/components/ui/ConnectionStatus";
 import { useRoomStore } from "@/store/roomStore";
 import { getSocket } from "@/lib/socket";
+import { toast } from "@/components/ui/toast";
 
 type TabType = "chat" | "participants" | "details";
 
@@ -17,9 +18,20 @@ export default function Sidebar() {
   const handleRemoveParticipant = (targetSocketId: string) => {
     if (!isHost || !targetSocketId || targetSocketId === mySocketId) return;
     
+    const participant = participants.get(targetSocketId);
+    const participantName = participant?.username || "Participant";
+    
     setRemoving(targetSocketId);
     const socket = getSocket();
     socket.emit("remove-participant", targetSocketId);
+    
+    // Show toast notification
+    toast.info(`Removing ${participantName}...`);
+    
+    // Listen for success
+    socket.once("participant-removed-success", () => {
+      toast.success(`Removed ${participantName} from the meeting`);
+    });
     
     // Reset removing state after a delay
     setTimeout(() => setRemoving(null), 2000);

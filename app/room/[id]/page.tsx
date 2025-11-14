@@ -8,6 +8,7 @@ import MeetingEnded from "@/components/ui/MeetingEnded";
 import Icon from "@/components/ui/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { initWebRTC } from "@/lib/webrtc";
+import { toast } from "@/components/ui/toast";
 
 export default function RoomPage() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function RoomPage() {
     meetingTitle,
     userName,
     meetingEnded,
+    participants,
     setRoomId,
     setMeetingTitle,
     setUserName,
@@ -59,6 +61,18 @@ export default function RoomPage() {
     }
   }, [roomId, setRoomId]);
 
+  // Update document title with meeting title
+  useEffect(() => {
+    if (meetingTitle) {
+      document.title = `${meetingTitle} - Study Room`;
+    } else {
+      document.title = "Study Room - Premium Video Meetings";
+    }
+    return () => {
+      document.title = "Study Room - Premium Video Meetings";
+    };
+  }, [meetingTitle]);
+
   // Monitor socket connection and listen for room metadata
   useEffect(() => {
     const initSocket = async () => {
@@ -96,7 +110,7 @@ export default function RoomPage() {
       // Listen for errors
       const onError = (error: { message: string }) => {
         console.error("Socket error:", error.message);
-        alert(error.message);
+        toast.error(error.message);
       };
 
       socket.on("connect", onConnect);
@@ -143,19 +157,37 @@ export default function RoomPage() {
         const { getSocket } = await import("@/lib/socket");
         const socket = getSocket();
         
-        // Wait for socket to connect
+        // Wait for socket to connect with better error handling
         if (!socket.connected) {
           console.log("⏳ Waiting for socket connection...");
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             if (socket.connected) {
               resolve(undefined);
-            } else {
-              const timeout = setTimeout(() => resolve(undefined), 10000);
-              socket.once("connect", () => {
-                clearTimeout(timeout);
-                resolve(undefined);
-              });
+              return;
             }
+            
+            const timeout = setTimeout(() => {
+              socket.off("connect", onConnect);
+              socket.off("connect_error", onError);
+              reject(new Error("Socket connection timeout. Please check if the server is running."));
+            }, 15000);
+            
+            const onConnect = () => {
+              clearTimeout(timeout);
+              socket.off("connect", onConnect);
+              socket.off("connect_error", onError);
+              resolve(undefined);
+            };
+            
+            const onError = (error: Error) => {
+              clearTimeout(timeout);
+              socket.off("connect", onConnect);
+              socket.off("connect_error", onError);
+              reject(new Error(`Socket connection failed: ${error.message}`));
+            };
+            
+            socket.on("connect", onConnect);
+            socket.on("connect_error", onError);
           });
         }
 
@@ -217,9 +249,9 @@ export default function RoomPage() {
         if (mounted) {
           setIsLoading(false);
           if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-            alert("Please allow camera and microphone access to join the room");
+            toast.error("Please allow camera and microphone access to join the room");
           } else {
-            alert(`Error: ${error.message || "Failed to setup media"}`);
+            toast.error(`Error: ${error.message || "Failed to setup media"}`);
           }
         }
       }
@@ -327,6 +359,8 @@ export default function RoomPage() {
               peers={peers}
               localStream={localStream}
               mySocketId={mySocketId}
+              participants={participants}
+              userName={userName}
             />
           </div>
 

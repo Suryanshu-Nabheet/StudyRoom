@@ -14,8 +14,10 @@ export const getSocket = (): Socket => {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: Infinity,
-      timeout: 20000,
+      timeout: 30000, // Increased timeout
       forceNew: false,
+      upgrade: true,
+      rememberUpgrade: true,
     });
 
     socket.on("connect", () => {

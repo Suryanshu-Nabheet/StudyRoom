@@ -7,10 +7,18 @@ interface PeerData {
   stream: MediaStream;
 }
 
+interface UserInfo {
+  id: string;
+  username: string;
+  isHost?: boolean;
+}
+
 interface VideoGridProps {
   peers: Map<string, PeerData>;
   localStream: MediaStream | null;
   mySocketId: string | null;
+  participants: Map<string, UserInfo>;
+  userName: string | null;
 }
 
 // Calculate grid layout like Zoom - equal division
@@ -31,7 +39,7 @@ function calculateGrid(totalParticipants: number): { cols: number; rows: number 
   return { cols, rows };
 }
 
-export default function VideoGrid({ peers, localStream, mySocketId }: VideoGridProps) {
+export default function VideoGrid({ peers, localStream, mySocketId, participants, userName }: VideoGridProps) {
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -111,7 +119,7 @@ export default function VideoGrid({ peers, localStream, mySocketId }: VideoGridP
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
-            You {mySocketId ? `(${mySocketId.slice(0, 8)})` : ""}
+            {userName || "You"}
           </div>
           <div className="absolute top-3 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-black shadow-lg animate-pulse"></div>
         </div>
@@ -144,7 +152,7 @@ export default function VideoGrid({ peers, localStream, mySocketId }: VideoGridP
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
             <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/10 shadow-lg">
-              {userId.slice(0, 8)}
+              {participants.get(userId)?.username || userId.slice(0, 8)}
             </div>
             <div className="absolute top-3 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-black shadow-lg"></div>
           </div>

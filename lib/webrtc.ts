@@ -1,5 +1,6 @@
 import Peer from "simple-peer";
 import { getSocket } from "./socket";
+import { toast } from "@/components/ui/toast";
 
 interface PeerData {
   peer: Peer.Instance;
@@ -272,6 +273,11 @@ export const initWebRTC = async (
     if (isCleaningUp) return;
     console.log("👤 User joined:", userData.id, userData.username, userData.isHost ? "(Host)" : "");
     
+    // Show toast notification
+    if (typeof window !== "undefined" && userData.username) {
+      toast.success(`${userData.username} joined the meeting`);
+    }
+    
     // Update participants store with host info
     if (typeof window !== "undefined" && userData.id && userData.username) {
       import("@/store/roomStore").then(({ useRoomStore }) => {
@@ -296,10 +302,16 @@ export const initWebRTC = async (
     if (isCleaningUp) return;
     console.log("👋 User left:", userId);
     
-    // Remove from participants store
+    // Get username before removing
+    let username = "Someone";
     if (typeof window !== "undefined" && userId) {
       import("@/store/roomStore").then(({ useRoomStore }) => {
         const store = useRoomStore.getState();
+        const participant = store.participants.get(userId);
+        if (participant) {
+          username = participant.username;
+          toast.info(`${username} left the meeting`);
+        }
         store.removeParticipant(userId);
       });
     }
@@ -417,7 +429,7 @@ export const initWebRTC = async (
       import("@/store/roomStore").then(({ useRoomStore }) => {
         const store = useRoomStore.getState();
         store.setMeetingEnded(true);
-        alert(data.message || "You have been removed from the meeting by the host");
+        toast.error(data.message || "You have been removed from the meeting by the host");
       });
     }
   });
