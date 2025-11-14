@@ -5,12 +5,25 @@ import Icon from "@/components/Icon";
 import ChatPanel from "@/components/ChatPanel";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import { useRoomStore } from "@/store/roomStore";
+import { getSocket } from "@/lib/socket";
 
 type TabType = "chat" | "participants" | "details";
 
 export default function Sidebar() {
   const [activeTab, setActiveTab] = useState<TabType>("chat");
-  const { peers, mySocketId, roomId, meetingTitle, userName, participants } = useRoomStore();
+  const [removing, setRemoving] = useState<string | null>(null);
+  const { peers, mySocketId, roomId, meetingTitle, userName, participants, isHost } = useRoomStore();
+
+  const handleRemoveParticipant = (targetSocketId: string) => {
+    if (!isHost || !targetSocketId || targetSocketId === mySocketId) return;
+    
+    setRemoving(targetSocketId);
+    const socket = getSocket();
+    socket.emit("remove-participant", targetSocketId);
+    
+    // Reset removing state after a delay
+    setTimeout(() => setRemoving(null), 2000);
+  };
 
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: "chat", label: "Chat", icon: "chat" },
@@ -58,7 +71,7 @@ export default function Sidebar() {
                     <p className="text-sm font-semibold text-white">
                       {userName || "You"} {mySocketId && `(${mySocketId.slice(0, 8)})`}
                     </p>
-                    <p className="text-xs text-gray-400">Host</p>
+                    <p className="text-xs text-gray-400">{isHost ? "Host" : "Participant"}</p>
                   </div>
                   <div className="w-2 h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
                 </div>
@@ -72,6 +85,7 @@ export default function Sidebar() {
                   const initials = participant?.username 
                     ? participant.username.slice(0, 2).toUpperCase()
                     : userId.slice(0, 2).toUpperCase();
+                  const participantIsHost = participant?.isHost || false;
                   
                   return (
                     <div
@@ -87,9 +101,23 @@ export default function Sidebar() {
                           <p className="text-sm font-semibold text-white truncate">
                             {displayName}
                           </p>
-                          <p className="text-xs text-gray-400">Participant</p>
+                          <p className="text-xs text-gray-400">
+                            {participantIsHost ? "Host" : "Participant"}
+                          </p>
                         </div>
-                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></div>
+                          {isHost && !participantIsHost && (
+                            <button
+                              onClick={() => handleRemoveParticipant(userId)}
+                              disabled={removing === userId}
+                              className="px-3 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Remove participant"
+                            >
+                              {removing === userId ? "Removing..." : "Remove"}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

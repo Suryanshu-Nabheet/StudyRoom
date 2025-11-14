@@ -13,9 +13,11 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+
 interface UserInfo {
   id: string;
   username: string;
+  isHost?: boolean;
 }
 
 interface RoomState {
@@ -24,19 +26,23 @@ interface RoomState {
   userName: string | null;
   localStream: MediaStream | null;
   peers: Map<string, PeerData>;
-  participants: Map<string, UserInfo>; // socketId -> { id, username }
+  participants: Map<string, UserInfo>; // socketId -> { id, username, isHost }
   chatMessages: ChatMessage[];
   mySocketId: string | null;
+  isHost: boolean;
+  meetingEnded: boolean;
   setRoomId: (id: string) => void;
   setMeetingTitle: (title: string) => void;
   setUserName: (name: string) => void;
   setLocalStream: (stream: MediaStream | null) => void;
   setPeers: (peers: Map<string, PeerData>) => void;
   setParticipants: (participants: Map<string, UserInfo>) => void;
-  addParticipant: (id: string, username: string) => void;
+  addParticipant: (id: string, username: string, isHost?: boolean) => void;
   removeParticipant: (id: string) => void;
   addChatMessage: (message: ChatMessage) => void;
   setMySocketId: (id: string | null) => void;
+  setIsHost: (isHost: boolean) => void;
+  setMeetingEnded: (ended: boolean) => void;
   clearChat: () => void;
 }
 
@@ -49,16 +55,18 @@ export const useRoomStore = create<RoomState>((set) => ({
   participants: new Map(),
   chatMessages: [],
   mySocketId: null,
+  isHost: false,
+  meetingEnded: false,
   setRoomId: (id) => set({ roomId: id }),
   setMeetingTitle: (title) => set({ meetingTitle: title }),
   setUserName: (name) => set({ userName: name }),
   setLocalStream: (stream) => set({ localStream: stream }),
   setPeers: (peers) => set({ peers }),
   setParticipants: (participants) => set({ participants }),
-  addParticipant: (id, username) =>
+  addParticipant: (id, username, isHost = false) =>
     set((state) => {
       const newParticipants = new Map(state.participants);
-      newParticipants.set(id, { id, username });
+      newParticipants.set(id, { id, username, isHost });
       return { participants: newParticipants };
     }),
   removeParticipant: (id) =>
@@ -72,5 +80,7 @@ export const useRoomStore = create<RoomState>((set) => ({
       chatMessages: [...state.chatMessages, message],
     })),
   setMySocketId: (id) => set({ mySocketId: id }),
+  setIsHost: (isHost) => set({ isHost }),
+  setMeetingEnded: (ended) => set({ meetingEnded: ended }),
   clearChat: () => set({ chatMessages: [] }),
 }));

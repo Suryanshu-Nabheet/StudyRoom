@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import Icon from "@/components/Icon";
 import JoinRoom from "@/components/JoinRoom";
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [roomId, setRoomId] = useState("");
@@ -96,5 +96,30 @@ export default function Home() {
         </div>
       </div>
     </main>
+  );
+}
+
+function HomeSkeleton() {
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl">
+        <div className="text-center mb-12 animate-pulse">
+          <div className="h-20 bg-zinc-800 rounded-lg mb-6"></div>
+          <div className="h-8 bg-zinc-800 rounded-lg mb-3 max-w-xl mx-auto"></div>
+          <div className="h-6 bg-zinc-800 rounded-lg max-w-2xl mx-auto"></div>
+        </div>
+        <div className="flex justify-center mb-12">
+          <div className="w-full max-w-md h-96 bg-zinc-800 rounded-2xl"></div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<HomeSkeleton />}>
+      <HomeContent />
+    </Suspense>
   );
 }

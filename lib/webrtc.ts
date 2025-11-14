@@ -19,38 +19,59 @@ export const initWebRTC = async (
   let mySocketId: string | null = null;
   let isCleaningUp = false;
 
-  // Wait for socket to connect
-  const waitForConnection = (): Promise<string> => {
+  // Wait for socket to connect with retry logic
+  const waitForConnection = (retries = 3): Promise<string> => {
     return new Promise((resolve, reject) => {
       if (socket.connected && socket.id) {
         const socketId = socket.id;
         mySocketId = socketId;
         setMySocketId(socketId);
         resolve(socketId);
-      } else {
-        const onConnect = () => {
-          if (socket.id) {
-            const socketId = socket.id;
-            mySocketId = socketId;
-            setMySocketId(socketId);
-            socket.off("connect", onConnect);
-            socket.off("connect_error", onError);
-            resolve(socketId);
-          }
-        };
-        const onError = (error: Error) => {
-          socket.off("connect", onConnect);
-          socket.off("connect_error", onError);
-          reject(error);
-        };
-        socket.on("connect", onConnect);
-        socket.on("connect_error", onError);
-        setTimeout(() => {
-          socket.off("connect", onConnect);
-          socket.off("connect_error", onError);
-          reject(new Error("Socket connection timeout"));
-        }, 10000);
+        return;
       }
+
+      const onConnect = () => {
+        if (socket.id) {
+          const socketId = socket.id;
+          mySocketId = socketId;
+          setMySocketId(socketId);
+          socket.off("connect", onConnect);
+          socket.off("connect_error", onError);
+          resolve(socketId);
+        }
+      };
+
+      const onError = (error: Error) => {
+        socket.off("connect", onConnect);
+        socket.off("connect_error", onError);
+        if (retries > 0) {
+          console.log(`🔄 Socket connection failed, retrying... (${retries} attempts left)`);
+          setTimeout(() => {
+            waitForConnection(retries - 1).then(resolve).catch(reject);
+          }, 2000);
+        } else {
+          reject(error);
+        }
+      };
+
+      socket.on("connect", onConnect);
+      socket.on("connect_error", onError);
+
+      const timeout = setTimeout(() => {
+        socket.off("connect", onConnect);
+        socket.off("connect_error", onError);
+        if (retries > 0) {
+          console.log(`⏳ Socket connection timeout, retrying... (${retries} attempts left)`);
+          waitForConnection(retries - 1).then(resolve).catch(reject);
+        } else {
+          reject(new Error("Socket connection timeout after multiple attempts"));
+        }
+      }, 10000);
+
+      // Clear timeout if connection succeeds
+      socket.once("connect", () => {
+        clearTimeout(timeout);
+      });
     });
   };
 
@@ -100,13 +121,15 @@ export const initWebRTC = async (
 
     const peer = new Peer({
       initiator,
-      trickle: false,
+      trickle: true, // Enable trickle ICE for faster connection
       stream: localStream,
       config: {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
           { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
         ],
+        iceCandidatePoolSize: 10,
       },
     });
 
@@ -137,6 +160,15 @@ export const initWebRTC = async (
 
     peer.on("error", (err) => {
       console.error("❌ Peer error for", userId, ":", err);
+      // Try to recreate peer on error (with delay to avoid loops)
+      if (!isCleaningUp && userId) {
+        setTimeout(() => {
+          if (!isCleaningUp && !peers.has(userId)) {
+            console.log("🔄 Attempting to recreate peer after error:", userId);
+            createPeer(userId, initiator);
+          }
+        }, 2000);
+      }
     });
 
     peer.on("close", () => {
@@ -166,29 +198,51 @@ export const initWebRTC = async (
     console.log("🚪 Joining room:", roomId, "with socket ID:", mySocketId);
     const displayName = userName || `User-${mySocketId.slice(0, 6)}`;
     // Check if already joined (room page handles it for new rooms with title)
-    const hasJoined = typeof window !== "undefined" && sessionStorage.getItem("hasJoinedRoom");
+    const hasJoined = typeof window !== "undefined" && sessionStorage.getItem(`hasJoinedRoom_${roomId}`);
     if (!hasJoined) {
       socket.emit("join-room", roomId, displayName);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(`hasJoinedRoom_${roomId}`, "true");
+      }
     }
   } else {
     throw new Error("Socket not connected");
   }
   
-  // Listen for room metadata (meeting title) - handled by room page
+  // Listen for room metadata (meeting title and host status)
+  socket.on("room-metadata", (metadata: { title?: string; createdAt?: Date; isHost?: boolean }) => {
+    if (isCleaningUp) return;
+    if (typeof window !== "undefined" && metadata) {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        if (metadata.title && !store.meetingTitle) {
+          store.setMeetingTitle(metadata.title);
+        }
+        if (metadata.isHost !== undefined) {
+          store.setIsHost(metadata.isHost);
+          console.log(metadata.isHost ? "🏠 You are the host" : "👤 You are a participant");
+        }
+      });
+    }
+  });
 
   // When joining, new user creates peers as initiators for all existing users
-  socket.on("room-users", (users: Array<{ id: string; username: string }>) => {
+  socket.on("room-users", (users: Array<{ id: string; username: string; isHost?: boolean }>) => {
     if (isCleaningUp) return;
     console.log("📋 Room users received:", users.length, "users");
     
-    // Update participants store
+    // Update participants store with host info
     if (typeof window !== "undefined") {
       import("@/store/roomStore").then(({ useRoomStore }) => {
         const store = useRoomStore.getState();
         const newParticipants = new Map(store.participants);
         users.forEach((user) => {
           if (user && user.id && user.username) {
-            newParticipants.set(user.id, { id: user.id, username: user.username });
+            newParticipants.set(user.id, { 
+              id: user.id, 
+              username: user.username,
+              isHost: user.isHost || false,
+            });
           }
         });
         store.setParticipants(newParticipants);
@@ -214,15 +268,15 @@ export const initWebRTC = async (
   });
 
   // When a new user joins, existing users create peer as answerer
-  socket.on("user-joined", (userData: { id: string; username: string }) => {
+  socket.on("user-joined", (userData: { id: string; username: string; isHost?: boolean }) => {
     if (isCleaningUp) return;
-    console.log("👤 User joined:", userData.id, userData.username);
+    console.log("👤 User joined:", userData.id, userData.username, userData.isHost ? "(Host)" : "");
     
-    // Update participants store
+    // Update participants store with host info
     if (typeof window !== "undefined" && userData.id && userData.username) {
       import("@/store/roomStore").then(({ useRoomStore }) => {
         const store = useRoomStore.getState();
-        store.addParticipant(userData.id, userData.username);
+        store.addParticipant(userData.id, userData.username, userData.isHost || false);
       });
     }
     
@@ -343,6 +397,31 @@ export const initWebRTC = async (
     }
   });
 
+  // Listen for meeting ended event
+  socket.on("meeting-ended", (data: { message: string }) => {
+    if (isCleaningUp) return;
+    console.log("🏁 Meeting ended:", data.message);
+    if (typeof window !== "undefined") {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        store.setMeetingEnded(true);
+      });
+    }
+  });
+
+  // Listen for participant removed event
+  socket.on("participant-removed", (data: { message: string }) => {
+    if (isCleaningUp) return;
+    console.log("🚫 You have been removed from the meeting");
+    if (typeof window !== "undefined") {
+      import("@/store/roomStore").then(({ useRoomStore }) => {
+        const store = useRoomStore.getState();
+        store.setMeetingEnded(true);
+        alert(data.message || "You have been removed from the meeting by the host");
+      });
+    }
+  });
+
   // Cleanup
   return () => {
     console.log("🧹 Cleaning up WebRTC");
@@ -352,11 +431,18 @@ export const initWebRTC = async (
     socket.off("user-joined");
     socket.off("user-left");
     socket.off("signal");
+    socket.off("room-metadata");
+    socket.off("meeting-ended");
+    socket.off("participant-removed");
 
     peers.forEach((peerData) => {
       try {
         if (!peerData.peer.destroyed) {
           peerData.peer.destroy();
+        }
+        // Stop all tracks in the stream
+        if (peerData.stream && peerData.stream.getTracks) {
+          peerData.stream.getTracks().forEach(track => track.stop());
         }
       } catch (e) {
         // Ignore cleanup errors

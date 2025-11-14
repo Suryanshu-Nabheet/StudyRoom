@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
 import Sidebar from "@/components/Sidebar";
+import MeetingEnded from "@/components/MeetingEnded";
 import Icon from "@/components/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { initWebRTC } from "@/lib/webrtc";
@@ -18,6 +19,7 @@ export default function RoomPage() {
     mySocketId,
     meetingTitle,
     userName,
+    meetingEnded,
     setRoomId,
     setMeetingTitle,
     setUserName,
@@ -72,16 +74,36 @@ export default function RoomPage() {
         setIsConnected(false);
       };
 
-      // Listen for room metadata (meeting title)
-      const onRoomMetadata = (metadata: { title: string; createdAt: Date }) => {
-        if (metadata && metadata.title && !meetingTitle) {
-          setMeetingTitle(metadata.title);
+      // Listen for room metadata (meeting title and host status)
+      const onRoomMetadata = (metadata: { title?: string; createdAt?: Date; isHost?: boolean }) => {
+        if (metadata) {
+          const { setMeetingTitle, setIsHost } = useRoomStore.getState();
+          if (metadata.title && !meetingTitle) {
+            setMeetingTitle(metadata.title);
+          }
+          if (metadata.isHost !== undefined) {
+            setIsHost(metadata.isHost);
+          }
         }
+      };
+
+      // Listen for meeting ended
+      const onMeetingEnded = (data: { message: string }) => {
+        const { setMeetingEnded } = useRoomStore.getState();
+        setMeetingEnded(true);
+      };
+
+      // Listen for errors
+      const onError = (error: { message: string }) => {
+        console.error("Socket error:", error.message);
+        alert(error.message);
       };
 
       socket.on("connect", onConnect);
       socket.on("disconnect", onDisconnect);
       socket.on("room-metadata", onRoomMetadata);
+      socket.on("meeting-ended", onMeetingEnded);
+      socket.on("error", onError);
 
       if (socket.connected) {
         setIsConnected(true);
@@ -92,6 +114,8 @@ export default function RoomPage() {
         socket.off("connect", onConnect);
         socket.off("disconnect", onDisconnect);
         socket.off("room-metadata", onRoomMetadata);
+        socket.off("meeting-ended", onMeetingEnded);
+        socket.off("error", onError);
       };
     };
 
@@ -165,11 +189,19 @@ export default function RoomPage() {
         const currentMeetingTitle = meetingTitle || sessionStorage.getItem("meetingTitle") || null;
         
         // Send meeting title to server if creating new room
-        if (currentMeetingTitle && !sessionStorage.getItem("hasJoinedRoom")) {
+        // Check if this is a new room (has meeting title in sessionStorage but hasn't joined yet)
+        const hasJoined = sessionStorage.getItem(`hasJoinedRoom_${roomId}`);
+        if (currentMeetingTitle && !hasJoined) {
           const { getSocket } = await import("@/lib/socket");
           const socket = getSocket();
           socket.emit("join-room", roomId, currentUserName, currentMeetingTitle);
-          sessionStorage.setItem("hasJoinedRoom", "true");
+          sessionStorage.setItem(`hasJoinedRoom_${roomId}`, "true");
+        } else if (!hasJoined) {
+          // Join without title (joining existing room)
+          const { getSocket } = await import("@/lib/socket");
+          const socket = getSocket();
+          socket.emit("join-room", roomId, currentUserName);
+          sessionStorage.setItem(`hasJoinedRoom_${roomId}`, "true");
         }
         
         // Initialize WebRTC connections
@@ -206,9 +238,18 @@ export default function RoomPage() {
       }
       setLocalStream(null);
       setPeers(new Map());
+      // Clear session storage for this room
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(`hasJoinedRoom_${roomId}`);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, userName]);
+
+  // Show meeting ended screen if meeting has ended
+  if (meetingEnded) {
+    return <MeetingEnded message="The host has left the meeting" />;
+  }
 
   return (
     <div className="h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex flex-col overflow-hidden">
