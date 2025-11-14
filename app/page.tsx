@@ -3,8 +3,8 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import Icon from "@/components/Icon";
-import JoinRoom from "@/components/JoinRoom";
+import Icon from "@/components/ui/Icon";
+import JoinRoom from "@/components/ui/JoinRoom";
 
 function HomeContent() {
   const router = useRouter();

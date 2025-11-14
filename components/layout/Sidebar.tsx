@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Icon from "@/components/Icon";
-import ChatPanel from "@/components/ChatPanel";
-import ConnectionStatus from "@/components/ConnectionStatus";
+import Icon from "@/components/ui/Icon";
+import ChatPanel from "@/components/chat/ChatPanel";
+import ConnectionStatus from "@/components/ui/ConnectionStatus";
 import { useRoomStore } from "@/store/roomStore";
 import { getSocket } from "@/lib/socket";
 

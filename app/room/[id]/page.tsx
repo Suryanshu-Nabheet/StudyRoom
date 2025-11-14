@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import VideoGrid from "@/components/VideoGrid";
-import Sidebar from "@/components/Sidebar";
-import MeetingEnded from "@/components/MeetingEnded";
-import Icon from "@/components/Icon";
+import VideoGrid from "@/components/video/VideoGrid";
+import Sidebar from "@/components/layout/Sidebar";
+import MeetingEnded from "@/components/ui/MeetingEnded";
+import Icon from "@/components/ui/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { initWebRTC } from "@/lib/webrtc";
 

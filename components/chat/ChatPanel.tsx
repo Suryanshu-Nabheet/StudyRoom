@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Icon from "@/components/Icon";
+import Icon from "@/components/ui/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { getSocket } from "@/lib/socket";
 

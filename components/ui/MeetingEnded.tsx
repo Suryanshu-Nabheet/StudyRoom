@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Icon from "@/components/Icon";
+import Icon from "@/components/ui/Icon";
 
 interface MeetingEndedProps {
   message?: string;
