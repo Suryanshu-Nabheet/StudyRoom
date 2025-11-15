@@ -1,140 +1,139 @@
-# Study Room
+# Study Room - Premium Video Meetings
 
 A production-ready real-time collaborative video meeting platform with peer-to-peer connections, real-time chat, and premium UI.
 
 ## Features
 
-- **HD Video Calls** - Crystal-clear peer-to-peer video and audio connections
+- **HD Video Calls** - Crystal-clear peer-to-peer video and audio
 - **Real-time Chat** - Instant messaging during meetings
-- **Easy Collaboration** - Share meeting links instantly, no accounts required
-- **Meeting Titles** - Name your meetings for better organization
-- **User Names** - Personalize your presence in meetings
-- **Professional UI** - Premium dark theme with smooth animations
-- **Connection Status** - Monitor WebRTC and Socket.io connections
+- **Unlimited Participants** - Support for multiple participants
+- **Host Controls** - Meeting creator can end meetings and remove participants
+- **Responsive Design** - Works on desktop, tablet, and mobile devices
+- **No Sign-ups Required** - Just create or join with a room ID
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14 (App Router) + TypeScript + TailwindCSS
-- **Realtime:** WebRTC (simple-peer) + Socket.io signaling
-- **State:** Zustand
-- **UI:** Professional dark theme with SVG icons
-- **Icons:** Custom SVG icons
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express, Socket.io
+- **WebRTC**: Simple-peer for peer-to-peer connections
+- **State Management**: Zustand
 
-## Setup
+## Getting Started
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+### Prerequisites
 
-2. **Set up environment variables:**
-   Create a `.env.local` file in the root directory:
-   ```
-   NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+- Node.js 18+ 
+- npm or yarn
 
-3. **Start the signaling server:**
-   ```bash
-   npm run server
-   ```
+### Installation
 
-4. **Start the Next.js app (in another terminal):**
-   ```bash
-   npm run dev
-   ```
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd StudyRoom
+```
 
-5. **Open your browser:**
-   Navigate to `http://localhost:3000`
+2. Install dependencies:
+```bash
+npm install
+```
 
-## Usage
+3. Create a `.env.local` file (optional for local development):
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+NEXT_PUBLIC_SOCKET_PORT=3001
+```
 
-1. **Create a Meeting:**
-   - Enter your name
-   - Enter a meeting title (e.g., "Study Session - Math")
-   - Click "Create Meeting"
+4. Start the Socket.io server:
+```bash
+npm run server
+```
 
-2. **Join a Meeting:**
-   - Enter your name
-   - Enter the Room ID or paste the share link
-   - Click "Join Meeting"
+5. In a new terminal, start the Next.js app:
+```bash
+npm run dev
+```
 
-3. **Share Meeting:**
-   - Click the "Share" button in the meeting room
-   - Copy and share the link with others
+6. Open [http://localhost:3000](http://localhost:3000)
 
 ## Project Structure
 
 ```
-/app
-  /page.tsx              # Home page (join/create meeting)
-  /room/[id]/page.tsx    # Room page with video grid and sidebar
-/components
-  VideoGrid.tsx          # Peer video display (Zoom-like grid)
-  ChatPanel.tsx          # Real-time chat
-  ConnectionStatus.tsx  # Connection monitoring
-  Sidebar.tsx            # Tabbed sidebar (Chat, Participants, Details)
-  JoinRoom.tsx           # Room join/create UI
-  Icon.tsx               # SVG icon component
-/lib
-  webrtc.ts              # WebRTC peer connections
-  socket.ts              # Socket.io client
-/store
-  roomStore.ts           # Zustand state management
-/public/icons            # SVG icon files
-/server.js               # Socket.io signaling server
+StudyRoom/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── room/              # Room pages
+│   └── page.tsx           # Home page
+├── components/            # React components
+│   ├── chat/             # Chat components
+│   ├── layout/           # Layout components
+│   ├── ui/               # UI components
+│   └── video/            # Video components
+├── config/                 # Configuration files
+├── lib/                   # Utility libraries
+│   ├── socket.ts         # Socket.io client
+│   └── webrtc.ts         # WebRTC manager
+├── server/                # Backend server
+│   ├── index.ts          # Server entry point
+│   └── socketServer.ts   # Socket.io server
+└── store/                 # State management
+    └── roomStore.ts       # Room state store
 ```
 
-## Production Deployment
+## Deployment
 
-### Environment Variables
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
-Create `.env.local` with:
-```env
-NEXT_PUBLIC_SOCKET_URL=https://your-signaling-server.com
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-```
+### Quick Deploy Options
 
-### Deploy Frontend (Vercel)
+1. **Vercel (Frontend) + Render/Railway (Backend)**
+   - Deploy frontend to Vercel
+   - Deploy backend to Render or Railway
+   - Configure environment variables
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Deploy: `vercel --prod`
-3. Or connect GitHub repo in Vercel dashboard
-4. Add environment variables in Vercel settings
+2. **Render (Full Stack)**
+   - Create two services: one for frontend, one for backend
+   - Configure environment variables for both
 
-### Deploy Signaling Server
+3. **Railway (Full Stack)**
+   - Similar to Render setup
 
-Deploy `server.js` to Render, Fly.io, or Railway:
-- Set start command: `node server.js`
-- Update CORS in `server.js` to allow your frontend domain
-- Set `PORT` environment variable (default: 3001)
+## Environment Variables
 
-### Production Requirements
+### Frontend
+- `NEXT_PUBLIC_APP_URL` - Your frontend URL
+- `NEXT_PUBLIC_SOCKET_URL` - Your Socket.io server URL
+- `NEXT_PUBLIC_SOCKET_PORT` - Socket.io server port (default: 3001)
 
-- ✅ HTTPS enabled (required for WebRTC)
-- ✅ Environment variables configured
-- ✅ Signaling server accessible
-- ✅ CORS properly configured
+### Backend
+- `SOCKET_PORT` - Port for Socket.io server (default: 3001)
+- `NEXT_PUBLIC_APP_URL` - Frontend URL for CORS
 
-## Important Notes
+## Browser Compatibility
 
-- All media is peer-to-peer (no server recordings)
-- Requires HTTPS in production for WebRTC
-- Video grid automatically adjusts layout based on participant count (Zoom-like)
-- SVG icons are used throughout the UI
-- Real-time chat and participant management
-- Professional dark theme UI
-- User names and meeting titles are stored in sessionStorage
+- Chrome/Edge (recommended)
+- Firefox
+- Safari (iOS 11+)
+- Mobile browsers (with camera/microphone permissions)
+
+## WebRTC Requirements
+
+- HTTPS required in production (or localhost for development)
+- Camera and microphone permissions
+- Modern browser with WebRTC support
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Code of Conduct
-
-See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our community standards.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+See LICENSE file for details.
 
+## Support
+
+For issues and questions, please open an issue on GitHub.

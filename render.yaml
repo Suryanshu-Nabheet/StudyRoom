@@ -1,0 +1,35 @@
+# Render.com deployment configuration
+# This file configures deployment for both frontend and backend services
+
+services:
+  # Frontend Service (Next.js)
+  - type: web
+    name: study-room-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false  # Set this to your Render frontend URL
+      - key: NEXT_PUBLIC_SOCKET_URL
+        sync: false  # Set this to your Render backend URL
+      - key: NEXT_PUBLIC_SOCKET_PORT
+        value: "443"  # Use 443 for HTTPS
+    healthCheckPath: /
+
+  # Backend Service (Socket.io)
+  - type: web
+    name: study-room-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SOCKET_PORT
+        value: "3001"
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false  # Set this to your Render frontend URL
+

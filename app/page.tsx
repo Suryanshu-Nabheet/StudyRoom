@@ -41,9 +41,8 @@ function HomeContent() {
   };
 
   return (
-    <main className="min-h-screen bg-black relative overflow-hidden">
-      {/* Background removed: world map demo deleted */}
-      {/* Content Overlay */}
+    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-black relative overflow-hidden">
+      {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Hero Section */}
         <section className="flex-1 flex items-center justify-center px-4 py-20">

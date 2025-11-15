@@ -20,9 +20,10 @@ export const initWebRTC = async (
   let mySocketId: string | null = null;
   let isCleaningUp = false;
 
-  // Wait for socket to connect with retry logic
-  const waitForConnection = (retries = 3): Promise<string> => {
+  // Wait for socket to connect - non-blocking with proper timeout
+  const waitForConnection = (): Promise<string> => {
     return new Promise((resolve, reject) => {
+      // If already connected, return immediately
       if (socket.connected && socket.id) {
         const socketId = socket.id;
         mySocketId = socketId;
@@ -31,8 +32,34 @@ export const initWebRTC = async (
         return;
       }
 
+      let resolved = false;
+      const connectionTimeout = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          socket.off("connect", onConnect);
+          socket.off("connect_error", onError);
+          // Don't reject - let socket.io handle reconnection
+          // Just resolve with a promise that will wait for actual connection
+          console.log("⏳ Connection taking longer than expected, continuing in background...");
+          // Wait a bit more, then check if connected
+          setTimeout(() => {
+            if (socket.connected && socket.id) {
+              const socketId = socket.id;
+              mySocketId = socketId;
+              setMySocketId(socketId);
+              resolve(socketId);
+            } else {
+              // Continue waiting - socket.io will reconnect
+              waitForConnection().then(resolve).catch(reject);
+            }
+          }, 2000);
+        }
+      }, 10000); // 10 second timeout for initial wait
+
       const onConnect = () => {
-        if (socket.id) {
+        if (!resolved && socket.id) {
+          resolved = true;
+          clearTimeout(connectionTimeout);
           const socketId = socket.id;
           mySocketId = socketId;
           setMySocketId(socketId);
@@ -42,37 +69,13 @@ export const initWebRTC = async (
         }
       };
 
-      const onError = (error: Error) => {
-        socket.off("connect", onConnect);
-        socket.off("connect_error", onError);
-        if (retries > 0) {
-          console.log(`🔄 Socket connection failed, retrying... (${retries} attempts left)`);
-          setTimeout(() => {
-            waitForConnection(retries - 1).then(resolve).catch(reject);
-          }, 2000);
-        } else {
-          reject(error);
-        }
+      const onError = () => {
+        // Don't reject on error - socket.io handles reconnection
+        // Just wait for the next connection attempt
       };
 
       socket.on("connect", onConnect);
       socket.on("connect_error", onError);
-
-      const timeout = setTimeout(() => {
-        socket.off("connect", onConnect);
-        socket.off("connect_error", onError);
-        if (retries > 0) {
-          console.log(`⏳ Socket connection timeout, retrying... (${retries} attempts left)`);
-          waitForConnection(retries - 1).then(resolve).catch(reject);
-        } else {
-          reject(new Error("Socket connection timeout after multiple attempts"));
-        }
-      }, 10000);
-
-      // Clear timeout if connection succeeds
-      socket.once("connect", () => {
-        clearTimeout(timeout);
-      });
     });
   };
 

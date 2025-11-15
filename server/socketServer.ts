@@ -18,17 +18,31 @@ export class SocketServer {
   private roomMetadata: Map<string, RoomMetadata> = new Map(); // roomId -> { title, createdAt, hostId }
 
   constructor(port: number = 3001) {
+    // Get allowed origins from environment or default to all in development
+    const allowedOrigins = process.env.NEXT_PUBLIC_APP_URL 
+      ? [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000", "http://localhost:3001"]
+      : "*";
+
     this.io = new Server(port, {
       cors: {
-        origin: "*",
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
+        credentials: true,
       },
       pingTimeout: 60000,
       pingInterval: 25000,
+      transports: ["websocket", "polling"],
+      allowEIO3: true, // Allow older clients
+      connectTimeout: 45000, // 45 second connection timeout
     });
 
     this.setupEventHandlers();
-    console.log(`Socket.io signaling server running on port ${port}`);
+    console.log(`✅ Socket.io signaling server running on port ${port}`);
+    if (process.env.NODE_ENV === "production") {
+      console.log(`🌐 Production mode: CORS enabled for ${allowedOrigins}`);
+    } else {
+      console.log(`🔧 Development mode: CORS enabled for all origins`);
+    }
   }
 
   private setupEventHandlers(): void {
@@ -50,6 +64,10 @@ export class SocketServer {
 
       socket.on("remove-participant", (targetSocketId: string) => {
         this.handleRemoveParticipant(socket, targetSocketId);
+      });
+
+      socket.on("end-meeting", () => {
+        this.handleEndMeeting(socket);
       });
 
       socket.on("disconnect", () => {
@@ -195,6 +213,47 @@ export class SocketServer {
     } catch (error) {
       console.error("Error in remove-participant:", error);
       socket.emit("error", { message: "Failed to remove participant" });
+    }
+  }
+
+  private handleEndMeeting(socket: Socket): void {
+    try {
+      const userData = this.users.get(socket.id);
+      if (!userData || !userData.roomId) {
+        socket.emit("error", { message: "You are not in a room" });
+        return;
+      }
+
+      const metadata = this.roomMetadata.get(userData.roomId);
+      if (!metadata || metadata.hostId !== socket.id) {
+        socket.emit("error", { message: "Only the host can end the meeting" });
+        return;
+      }
+
+      console.log(`🏁 Host ${socket.id} ended meeting in room ${userData.roomId}`);
+
+      // Notify all participants that meeting ended
+      this.io.to(userData.roomId).emit("meeting-ended", {
+        message: "The host has ended the meeting",
+      });
+
+      // Notify host of success
+      socket.emit("meeting-ended-success", { message: "Meeting ended successfully" });
+
+      // Clean up room
+      const room = this.rooms.get(userData.roomId);
+      if (room) {
+        // Remove all users from the room
+        room.forEach((socketId) => {
+          const targetSocket = this.io.sockets.sockets.get(socketId);
+          if (targetSocket) {
+            this.leaveRoom(targetSocket, userData.roomId);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error in end-meeting:", error);
+      socket.emit("error", { message: "Failed to end meeting" });
     }
   }
 

@@ -4,6 +4,8 @@ const nextConfig = {
   // Production optimizations
   swcMinify: true,
   compress: true,
+  // Performance optimizations
+  poweredByHeader: false,
   // Security headers
   async headers() {
     return [
@@ -25,6 +27,10 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=*, microphone=*, geolocation=()'
           }
         ]
       }
