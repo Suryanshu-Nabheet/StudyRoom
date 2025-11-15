@@ -101,8 +101,8 @@ export class SocketServer {
 
       const room = this.rooms.get(roomId);
       if (!room) {
-        console.error(`Room ${roomId} not found`);
-        socket.emit("error", { message: "Room not found" });
+        console.error(`Room ${roomId} not found after creation`);
+        socket.emit("error", { message: "Failed to join room" });
         return;
       }
 
@@ -247,13 +247,14 @@ export class SocketServer {
       socket.emit("meeting-ended-success", { message: "Meeting ended successfully" });
 
       // Clean up room
-      const room = this.rooms.get(userData.roomId);
+      const roomId = userData.roomId;
+      const room = this.rooms.get(roomId);
       if (room) {
         // Remove all users from the room
         room.forEach((socketId) => {
           const targetSocket = this.io.sockets.sockets.get(socketId);
           if (targetSocket) {
-            this.leaveRoom(targetSocket, userData.roomId);
+            this.leaveRoom(targetSocket, roomId);
           }
         });
       }
@@ -267,22 +268,23 @@ export class SocketServer {
     console.log("User disconnected:", socket.id);
     const userData = this.users.get(socket.id);
     if (userData && userData.roomId) {
-      const metadata = this.roomMetadata.get(userData.roomId);
+      const roomId = userData.roomId;
+      const metadata = this.roomMetadata.get(roomId);
       const isHost = metadata?.hostId === socket.id;
 
       if (isHost) {
         // Host left - end meeting for all participants
-        console.log(`🏠 Host ${socket.id} left room ${userData.roomId}. Ending meeting for all participants.`);
-        const room = this.rooms.get(userData.roomId);
+        console.log(`🏠 Host ${socket.id} left room ${roomId}. Ending meeting for all participants.`);
+        const room = this.rooms.get(roomId);
         if (room) {
           // Notify all participants that meeting ended
-          socket.to(userData.roomId).emit("meeting-ended", {
+          socket.to(roomId).emit("meeting-ended", {
             message: "The host has left the meeting",
           });
         }
       }
 
-      this.leaveRoom(socket, userData.roomId);
+      this.leaveRoom(socket, roomId);
     }
     this.users.delete(socket.id);
   }

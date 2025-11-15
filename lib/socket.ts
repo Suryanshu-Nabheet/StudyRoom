@@ -35,7 +35,7 @@ export const getSocket = (): Socket => {
       }
       // Only log important disconnects
       if (reason !== "transport close" && reason !== "ping timeout") {
-        console.log("❌ Socket disconnected:", reason);
+      console.log("❌ Socket disconnected:", reason);
       }
     });
 

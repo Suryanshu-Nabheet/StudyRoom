@@ -9,14 +9,8 @@
   },
   "functions": {
     "app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/socket.io/:path*",
-      "destination": "/api/socket/:path*"
-    }
-  ]
+  }
 }
 

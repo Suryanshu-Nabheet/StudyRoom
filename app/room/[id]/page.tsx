@@ -144,7 +144,8 @@ export default function RoomPage() {
     };
 
     initSocket();
-  }, [meetingTitle, setMeetingTitle, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meetingTitle, setMeetingTitle]);
 
   const copyShareLink = () => {
     const shareUrl = `${window.location.origin}?token=${roomId}`;
@@ -202,8 +203,8 @@ export default function RoomPage() {
             const connectionTimeout = setTimeout(() => {
               if (!connectionResolved) {
                 connectionResolved = true;
-                socket.off("connect", onConnect);
-                socket.off("connect_error", onError);
+              socket.off("connect", onConnect);
+              socket.off("connect_error", onError);
                 // Continue anyway - socket.io will reconnect in background
                 console.log("⏳ Connection in progress, continuing setup...");
                 resolve();
@@ -214,8 +215,8 @@ export default function RoomPage() {
               if (!connectionResolved) {
                 connectionResolved = true;
                 clearTimeout(connectionTimeout);
-                socket.off("connect", onConnect);
-                socket.off("connect_error", onError);
+              socket.off("connect", onConnect);
+              socket.off("connect_error", onError);
                 resolve();
               }
             };
@@ -396,12 +397,12 @@ export default function RoomPage() {
                 <span className="sm:hidden">End</span>
               </button>
             )}
-            <button
-              onClick={() => router.push("/")}
+          <button
+            onClick={() => router.push("/")}
               className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 whitespace-nowrap"
-            >
-              Leave
-            </button>
+          >
+            Leave
+          </button>
           </div>
         </div>
       </div>
