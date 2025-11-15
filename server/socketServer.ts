@@ -17,27 +17,41 @@ export class SocketServer {
   private users: Map<string, UserData> = new Map(); // socketId -> { roomId, username }
   private roomMetadata: Map<string, RoomMetadata> = new Map(); // roomId -> { title, createdAt, hostId }
 
-  constructor(port: number = 3001) {
-    // Get allowed origins from environment or default to all in development
+  constructor(portOrIo: number | Server = 3001) {
+    // Support both: port number (standalone) or Server instance (integrated with Next.js)
+    if (typeof portOrIo === 'number') {
+      // Standalone mode - create new Server on specified port
+      const allowedOrigins = process.env.NEXT_PUBLIC_APP_URL 
+        ? [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000", "http://localhost:3001"]
+        : "*";
+
+      this.io = new Server(portOrIo, {
+        cors: {
+          origin: allowedOrigins,
+          methods: ["GET", "POST"],
+          credentials: true,
+        },
+        pingTimeout: 60000,
+        pingInterval: 25000,
+        transports: ["websocket", "polling"],
+        allowEIO3: true,
+        connectTimeout: 45000,
+      });
+
+      console.log(`✅ Socket.io signaling server running on port ${portOrIo}`);
+    } else {
+      // Integrated mode - use provided Server instance
+      this.io = portOrIo;
+      console.log(`✅ Socket.io integrated with Next.js server`);
+    }
+
+    // Get allowed origins for logging
     const allowedOrigins = process.env.NEXT_PUBLIC_APP_URL 
-      ? [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000", "http://localhost:3001"]
+      ? [process.env.NEXT_PUBLIC_APP_URL, "http://localhost:3000"]
       : "*";
 
-    this.io = new Server(port, {
-      cors: {
-        origin: allowedOrigins,
-        methods: ["GET", "POST"],
-        credentials: true,
-      },
-      pingTimeout: 60000,
-      pingInterval: 25000,
-      transports: ["websocket", "polling"],
-      allowEIO3: true, // Allow older clients
-      connectTimeout: 45000, // 45 second connection timeout
-    });
-
     this.setupEventHandlers();
-    console.log(`✅ Socket.io signaling server running on port ${port}`);
+    
     if (process.env.NODE_ENV === "production") {
       console.log(`🌐 Production mode: CORS enabled for ${allowedOrigins}`);
     } else {

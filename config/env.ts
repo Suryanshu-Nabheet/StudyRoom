@@ -10,19 +10,22 @@ function getSocketUrl(): string {
   }
   
   // In browser, construct URL from current location
+  // Since Socket.io is now integrated with Next.js, use the same URL
   if (typeof window !== "undefined") {
     const protocol = window.location.protocol === "https:" ? "https:" : "http:";
     const hostname = window.location.hostname;
-    const port = process.env.NEXT_PUBLIC_SOCKET_PORT || "3001";
-    // Don't add port if using standard ports with HTTPS/HTTP
-    if ((protocol === "https:" && port === "443") || (protocol === "http:" && port === "80")) {
-      return `${protocol}//${hostname}`;
+    const port = window.location.port;
+    
+    // Use the same host and port as the current page (Socket.io is integrated)
+    if (port) {
+      return `${protocol}//${hostname}:${port}`;
     }
-    return `${protocol}//${hostname}:${port}`;
+    // No port means standard port (80 for http, 443 for https)
+    return `${protocol}//${hostname}`;
   }
   
-  // Server-side default
-  return "http://localhost:3001";
+  // Server-side default - use same port as Next.js
+  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 }
 
 // Helper to get app URL
