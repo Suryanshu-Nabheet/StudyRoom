@@ -43,7 +43,7 @@ export const env = {
   SOCKET_PORT: process.env.SOCKET_PORT 
     ? parseInt(process.env.SOCKET_PORT) 
     : process.env.PORT 
-    ? parseInt(process.env.PORT) 
+    ? parseInt(process.env.PORT) + 1  // Use PORT+1 for socket server when PORT is set
     : 3001,
   SOCKET_URL: getSocketUrl(),
 
