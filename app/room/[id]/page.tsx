@@ -144,7 +144,7 @@ export default function RoomPage() {
     };
 
     initSocket();
-  }, [meetingTitle, setMeetingTitle]);
+  }, [meetingTitle, setMeetingTitle, router]);
 
   const copyShareLink = () => {
     const shareUrl = `${window.location.origin}?token=${roomId}`;

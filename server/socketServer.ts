@@ -100,11 +100,17 @@ export class SocketServer {
       }
 
       const room = this.rooms.get(roomId);
-      const otherUsers = Array.from(room!);
+      if (!room) {
+        console.error(`Room ${roomId} not found`);
+        socket.emit("error", { message: "Room not found" });
+        return;
+      }
+
+      const otherUsers = Array.from(room);
       const metadata = this.roomMetadata.get(roomId);
 
       // Add user to room
-      room!.add(socket.id);
+      room.add(socket.id);
       this.users.set(socket.id, { roomId, username: username || `User-${socket.id.slice(0, 6)}` });
 
       console.log(`User ${socket.id} (${username}) joined room ${roomId}. Room now has ${room.size} users.`);
