@@ -178,3 +178,4 @@ See LICENSE file for details.
 ## Support
 
 Questions or suggestions? Open an issue on GitHub – contributions and feedback are welcome.
+# StudyRoom

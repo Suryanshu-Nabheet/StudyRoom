@@ -41,18 +41,19 @@ export const getSocket = (): Socket => {
       }
     });
 
-    socket.on("connect_error", (error) => {
+    socket.on("connect_error", (error: any) => {
       connectionAttempts++;
-      // Always log connection errors for debugging
-      console.error(`⚠️ Socket connection error (attempt ${connectionAttempts}):`, {
-        message: error.message,
-        type: error.type,
-        description: error.description,
+      // Always log connection errors for debugging (safely access custom fields)
+      const errInfo = {
+        message: error?.message ?? String(error),
+        type: (error as any)?.type ?? undefined,
+        description: (error as any)?.description ?? undefined,
         url: socketUrl,
-      });
+      };
+      console.error(`⚠️ Socket connection error (attempt ${connectionAttempts}):`, errInfo);
       // Limit console spam - only show first few errors
       if (connectionAttempts <= MAX_CONSOLE_ERRORS) {
-        console.warn(`⚠️ Socket connection attempt ${connectionAttempts}:`, error.message);
+        console.warn(`⚠️ Socket connection attempt ${connectionAttempts}:`, errInfo.message);
         if (connectionAttempts === MAX_CONSOLE_ERRORS) {
           console.log("💡 Connection will continue retrying silently...");
         }
