@@ -1,0 +1,17 @@
+{
+  "name": "study-room-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "server": "tsx index.ts",
+    "server:dev": "tsx watch index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0"
+  }
+}
+
