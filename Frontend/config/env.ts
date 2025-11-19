@@ -15,8 +15,19 @@ function getSocketUrl(): string {
     const protocol = window.location.protocol === "https:" ? "https:" : "http:";
     const hostname = window.location.hostname;
     const socketPort = process.env.NEXT_PUBLIC_SOCKET_PORT || "3001";
-    
-    // Use the socket server port (3001) instead of the frontend port
+
+    // Do not append standard ports (80/443) to the hostname in production.
+    // If NEXT_PUBLIC_SOCKET_URL is present we'll return it above. Otherwise,
+    // only add an explicit port for non-standard ports so the client doesn't
+    // try to connect to e.g. `https://example.com:3001` when the backend is
+    // served over the same HTTPS host via Render.
+    const isStdHttpsPort = socketPort === "443" && protocol === "https:";
+    const isStdHttpPort = socketPort === "80" && protocol === "http:";
+
+    if (isStdHttpsPort || isStdHttpPort) {
+      return `${protocol}//${hostname}`;
+    }
+
     return `${protocol}//${hostname}:${socketPort}`;
   }
   
