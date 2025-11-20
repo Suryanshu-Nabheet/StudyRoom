@@ -1,6 +1,6 @@
 # Render.com deployment configuration
 # This file configures deployment for both frontend and backend services
-# 
+#
 # IMPORTANT: After deployment, update the environment variables:
 # 1. Set NEXT_PUBLIC_APP_URL to your frontend service URL
 # 2. Set NEXT_PUBLIC_SOCKET_URL to your backend service URL
@@ -13,20 +13,17 @@ services:
     env: node
     plan: starter  # Free tier
     region: oregon  # Choose your region
+    rootDir: Frontend
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: npm run start
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_APP_URL
-        sync: false  # Set to: https://your-frontend-service.onrender.com
+        sync: false  # e.g. https://studyroom-frontend.onrender.com
       - key: NEXT_PUBLIC_SOCKET_URL
-        sync: false  # Set to: https://your-backend-service.onrender.com
-      - key: NEXT_PUBLIC_SOCKET_PORT
-        value: "443"  # Use 443 for HTTPS (standard port, so URL won't include :443)
-      - key: PORT
-        value: "10000"  # Render assigns a PORT dynamically
+        sync: false  # e.g. https://studyroom-backend.onrender.com
 
   # Backend Service (Socket.io)
   - type: web
@@ -34,13 +31,11 @@ services:
     env: node
     plan: starter  # Free tier
     region: oregon  # Choose your region (same as frontend recommended)
+    rootDir: Backend
     buildCommand: npm install
     startCommand: npm run server
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: "10000"  # Render assigns a PORT, but we can suggest a default
       - key: NEXT_PUBLIC_APP_URL
-        sync: false  # Set to: https://your-frontend-service.onrender.com
-
+        sync: false  # e.g. https://studyroom-frontend.onrender.com
