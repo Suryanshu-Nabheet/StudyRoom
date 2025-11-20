@@ -1,31 +1,69 @@
-# Study Room · Ultra-stable WebRTC classrooms
+# StudyRoom
 
-A production‑ready study platform with a minimalist marketing site, premium meeting UI, and a battle-tested WebRTC stack.
+A modern, production‑ready platform for **live study sessions, classrooms, and collaboration** built on top of WebRTC.
 
-## Feature highlights
+StudyRoom combines a clean marketing site, a focused meeting experience, and a hardened signaling layer to make remote studying feel as close to in‑person as possible.
 
-- **Premium landing experience** – hero, feature grid, workflow walkthrough, CTA + footer.
-- **Crystal-clear media** – 1080p/60fps video, Opus audio with AGC/AEC/NR, adaptive bitrate and jitter buffers.
-- **Screen sharing & media controls** – mute/unmute, camera toggle, share/stop share, leave button, and live network stats.
-- **Host moderation** – end session for everyone, remove participants, see presence and chat in the sidebar.
-- **Realtime chat** – lightweight message panel with auto-scroll, user badges, and socket-driven updates.
-- **Connection telemetry** – bitrate, RTT, jitter surfaced in UI plus toast-based error handling.
+---
 
-## Tech stack
+## Highlights
 
-- **Frontend** – Next.js 14 App Router, React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons.
-- **State / Toasts** – Zustand store for peers/media/chat, handcrafted toast system.
-- **Media** – Simple-Peer on top of pure WebRTC, custom media controller utilities, screen-share track replacement.
-- **Backend** – Lightweight Socket.io signaling service (no DB, no persistence).
+- **High‑quality video & audio** – WebRTC + Simple‑Peer with fine‑tuned connection settings.
+- **Interactive rooms** – live video grid, chat, and presence in a single unified experience.
+- **Host controls** – end meeting for everyone, remove participants, and manage room state.
+- **Real‑time telemetry** – bitrate, RTT, and jitter surfaced in the UI for quick diagnostics.
+- **Render‑ready** – single Node service that runs both the Next.js app and the Socket.io signaling server.
 
-## Getting Started
+---
+
+## Architecture
+
+StudyRoom is organized as a small monorepo with two workspaces and a unified runtime server:
+
+- **Frontend** – Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion.
+- **Signaling backend** – Socket.io based signaling server for WebRTC (no database required).
+- **Unified server** – a custom `server.ts` entrypoint at the repo root that:
+  - Boots the Next.js application from `Frontend/`.
+  - Attaches Socket.io (via `SocketServer`) to the same HTTP server and port.
+
+This means you can deploy StudyRoom as **one Node service** (e.g. a single Render web service) and still keep the codebase cleanly separated into Frontend and Backend.
+
+---
+
+## Project structure
+
+```text
+StudyRoom/
+├── Frontend/               # Next.js application (UI)
+│   ├── app/                # App Router pages & layouts
+│   ├── components/         # UI, chat, layout, video components
+│   ├── config/             # Frontend config & env helpers
+│   ├── lib/                # WebRTC + socket client utilities
+│   ├── store/              # Zustand store (room/participants/network)
+│   ├── public/             # Static assets
+│   └── package.json        # Frontend dependencies
+│
+├── Backend/                # Socket.io signaling server
+│   ├── index.ts            # (standalone) server entrypoint
+│   ├── socketServer.ts     # core Socket.io logic
+│   ├── config/             # backend environment config
+│   └── package.json        # backend dependencies
+│
+├── server.ts               # Unified Next.js + Socket.io HTTP server
+├── package.json            # Root workspace + deployment scripts
+└── render.yaml             # Optional Render IaC configuration
+```
+
+---
+
+## Getting started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
+- Node.js **18+**
+- npm (recommended) or yarn/pnpm
 
-### Installation
+### Install dependencies
 
 ```bash
 git clone https://github.com/Suryanshu-Nabheet/StudyRoom.git
@@ -33,149 +71,131 @@ cd StudyRoom
 npm install
 ```
 
-3. Create a `.env.local` file in the root directory (optional for local development):
-```env
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
-NEXT_PUBLIC_SOCKET_PORT=3001
+### Local development
 
-# Optional: TURN server for better connectivity behind NATs
-# NEXT_PUBLIC_TURN_SERVER_URL=turn:your-turn-server.com:3478
-# NEXT_PUBLIC_TURN_USERNAME=your-username
-# NEXT_PUBLIC_TURN_CREDENTIAL=your-credential
-```
+There are two common ways to run StudyRoom locally.
 
-4. Start the Socket.io server (terminal #1):
+#### 1. Recommended: separate dev servers (clearer logs)
+
+Terminal 1 – Socket.io signaling server:
 
 ```bash
 npm run server
 ```
 
-5. Start the Next.js frontend (terminal #2):
+Terminal 2 – Next.js app (frontend):
 
 ```bash
 npm run dev
 ```
 
-6. Visit [http://localhost:3000](http://localhost:3000) and launch a room.
+Then open [http://localhost:3000](http://localhost:3000) and create or join a room.
 
-## Project structure
+In this mode:
 
-Clean Frontend/Backend workspaces managed from the repo root:
+- Frontend dev server runs on `http://localhost:3000`.
+- Signaling server listens on `http://localhost:3001` (default).
 
-```
-StudyRoom/
-├── Frontend/              # Frontend (Next.js application)
-│   ├── app/              # Next.js app directory
-│   │   ├── api/          # API routes
-│   │   ├── room/         # Room pages
-│   │   ├── page.tsx      # Landing page
-│   │   └── layout.tsx    # Root layout
-│   ├── components/       # React components
-│   │   ├── chat/         # Chat components
-│   │   ├── layout/       # Layout components
-│   │   ├── ui/           # UI components
-│   │   └── video/        # Video components
-│   ├── config/           # Configuration files
-│   ├── lib/              # Utility libraries
-│   │   ├── socket.ts     # Socket.io client
-│   │   └── webrtc.ts     # WebRTC manager
-│   ├── store/            # State management
-│   │   └── roomStore.ts  # Room state store
-│   ├── public/           # Static assets
-│   ├── package.json      # Frontend dependencies
-│   ├── next.config.js    # Next.js configuration
-│   └── tsconfig.json     # TypeScript configuration
-│
-├── Backend/               # Backend (Socket.io server)
-│   ├── index.ts         # Server entry point
-│   ├── socketServer.ts  # Socket.io server logic
-│   ├── config/          # Server configuration
-│   ├── package.json     # Server dependencies
-│   └── tsconfig.json    # TypeScript configuration
-│
-├── package.json          # Root package.json with workspace scripts
-└── README.md            # This file
+#### 2. Production‑like: unified server
+
+To run the same setup you use in production (one Node process running both UI + signaling):
+
+```bash
+npm run build   # build the Next.js app
+npm start       # runs server.ts using tsx
 ```
 
-### Available scripts
+This uses the unified `server.ts` entrypoint and listens on `PORT` (or `3000` if not set).
 
-- `npm run dev` – run the Next.js app (`Frontend`)
-- `npm run build` / `npm run start` – production build + start (`Frontend`)
-- `npm run server` / `npm run server:dev` – start the Socket.io signaling service (`Backend`)
-- `npm run clean` – remove caches/dist artifacts
+---
 
-## Deployment
+## Configuration & environment
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
+Default local setup works **without any env vars**:
 
-### Quick Deploy Options
+- Frontend dev: `http://localhost:3000`
+- Signaling dev: `http://localhost:3001`
 
-1. **Vercel (Frontend) + Render/Railway (Backend)**
-   - Deploy frontend to Vercel
-   - Deploy backend to Render or Railway
-   - Configure environment variables
+You can optionally create a `.env.local` file in `Frontend/` to override client‑side values:
 
-2. **Render (Full Stack)**
-   - Create two services: one for frontend, one for backend
-   - Configure environment variables for both
+```env
+# Frontend (client)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+# If not set in development, defaults to http://localhost:3001
+NEXT_PUBLIC_SOCKET_PORT=3001
 
-3. **Railway (Full Stack)**
-   - Similar to Render setup
+# Optional TURN server for stricter networks
+# NEXT_PUBLIC_TURN_SERVER_URL=turn:your-turn-server.com:3478
+# NEXT_PUBLIC_TURN_USERNAME=your-username
+# NEXT_PUBLIC_TURN_CREDENTIAL=your-credential
+```
 
-## Environment Variables
+Backend configuration (`Backend/config/env.ts`) uses:
 
-Create a `.env.local` file in the root directory with the following variables:
+- `SOCKET_PORT` (optional) – port for standalone Socket.io server (defaults to `3001`).
+- `NEXT_PUBLIC_APP_URL` – frontend URL used to build the CORS allowlist for production.
 
-### Frontend (Client)
-- `NEXT_PUBLIC_APP_URL` - Your frontend URL (default: `http://localhost:3000`)
-- `NEXT_PUBLIC_SOCKET_URL` - Your Socket.io server URL (default: auto-detected)
-- `NEXT_PUBLIC_SOCKET_PORT` - Socket.io server port (default: 3001)
+---
 
-### Backend (Server)
-- `SOCKET_PORT` - Port for Socket.io server (default: 3001)
-- `NEXT_PUBLIC_APP_URL` - Frontend URL for CORS (default: `http://localhost:3000`)
+## Deployment (Render, single service)
 
-### Optional: TURN Server (for better connectivity)
-- `NEXT_PUBLIC_TURN_SERVER_URL` - TURN server URL (e.g., `turn:your-server.com:3478`)
-- `NEXT_PUBLIC_TURN_USERNAME` - TURN server username
-- `NEXT_PUBLIC_TURN_CREDENTIAL` - TURN server credential
+StudyRoom is optimized to run as a **single Node web service** on Render:
 
-**Note**: TURN servers help with connectivity behind strict NATs and firewalls. For production, consider using a service like Twilio, Xirsys, or self-hosted coturn.
+**Repository:** `https://github.com/Suryanshu-Nabheet/StudyRoom`
 
-## Browser Compatibility
+**Build & deploy settings:**
 
-- Chrome/Edge (recommended)
-- Firefox
-- Safari (iOS 11+)
-- Mobile browsers (with camera/microphone permissions)
+- **Root Directory:** *(leave empty – use repo root)*
+- **Build Command:**
+  ```bash
+  npm install && npm run build
+  ```
+- **Start Command:**
+  ```bash
+  npm run start
+  ```
 
-## Media & stability features
+The `start` script runs `server.ts`, which:
 
-- **Video** – 1080p/60fps desktop streams, 720p fallback for mobile, hardware-accelerated rendering.
-- **Audio** – Opus @ 48kHz, built-in AEC/AGC/NR, auto mute/unmute states, and safety handling for permission issues.
-- **Screen sharing** – real-time track replacement so peers stay connected and never renegotiate unnecessarily.
-- **Signaling** – pure Socket.io with no database, host teardown, participant removal, instant reconnection.
-- **Telemetry** – periodic `RTCPeerConnection` stats drive bitrate/jitter/RTT widgets and inform the media controller.
+- Serves the Next.js app from `Frontend/`.
+- Attaches the Socket.io signaling server on the **same** Render `PORT`.
 
-## Production tips
+**Recommended environment variables on Render:**
 
-- Always serve the frontend over HTTPS in production or use a TURN server.
-- For strict firewalls, configure `NEXT_PUBLIC_TURN_*` variables.
-- Horizontal scale: deploy backend behind a process manager (PM2, systemd) or container with sticky sessions.
+- `NODE_ENV=production`
+- `NEXT_PUBLIC_APP_URL=https://<your-studyroom-domain>.onrender.com`
 
-## Contributing
+No `NEXT_PUBLIC_SOCKET_URL` is required in this setup – the client will use the same origin as the page.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+---
+
+## Tech stack
+
+- **Frontend:** Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons.
+- **Real‑time:** Socket.io (client + server), Simple‑Peer on top of WebRTC.
+- **State:** Zustand for room, participants, media, and network telemetry.
+- **Tooling:** ESLint, TSX, modern Next.js build tooling.
+
+---
+
+## Roadmap ideas
+
+- Persistent rooms and schedules (database support).
+- Authentication and user profiles.
+- Recording + playback of sessions.
+- Organization‑level admin tools (teams, permissions, analytics).
+
+---
 
 ## License
 
-See LICENSE file for details.
+This project is provided as‑is for learning and experimentation. If you plan to use it in production at scale, review and adapt the code, security posture, and deployment setup to your organization’s requirements.
 
-## Support
+---
 
-Questions or suggestions? Open an issue on GitHub – contributions and feedback are welcome.
-# StudyRoom
+## Contact
+
+**StudyRoom**
+
+- GitHub: [StudyRoom repository](https://github.com/Suryanshu-Nabheet/StudyRoom)
+- Issues & feature requests: please open a GitHub issue.

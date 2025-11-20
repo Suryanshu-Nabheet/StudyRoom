@@ -50,7 +50,7 @@ export default function RoomPage() {
   useEffect(() => {
     const storedName = sessionStorage.getItem("userName");
     const storedTitle = sessionStorage.getItem("meetingTitle");
-    
+
     if (storedName) {
       setUserName(storedName);
     }
@@ -91,18 +91,22 @@ export default function RoomPage() {
     const initSocket = async () => {
       const { getSocket } = await import("@/lib/socket");
       const socket = getSocket();
-      
+
       const onConnect = () => {
         setIsConnected(true);
         setIsLoading(false);
       };
-      
+
       const onDisconnect = () => {
         setIsConnected(false);
       };
 
       // Listen for room metadata (meeting title and host status)
-      const onRoomMetadata = (metadata: { title?: string; createdAt?: Date; isHost?: boolean }) => {
+      const onRoomMetadata = (metadata: {
+        title?: string;
+        createdAt?: Date;
+        isHost?: boolean;
+      }) => {
         if (metadata) {
           const { setMeetingTitle, setIsHost } = useRoomStore.getState();
           if (metadata.title && !meetingTitle) {
@@ -173,7 +177,9 @@ export default function RoomPage() {
       return;
     }
 
-    const confirmed = window.confirm("Are you sure you want to end the meeting for all participants?");
+    const confirmed = window.confirm(
+      "Are you sure you want to end the meeting for all participants?"
+    );
     if (!confirmed) return;
 
     try {
@@ -200,45 +206,45 @@ export default function RoomPage() {
         // First, ensure socket is initialized
         const { getSocket } = await import("@/lib/socket");
         const socket = getSocket();
-        
+
         // Wait for socket to connect with timeout
         if (!socket.connected) {
           console.log("⏳ Waiting for socket connection...");
           let connectionResolved = false;
-          
+
           await new Promise<void>((resolve) => {
             if (socket.connected) {
               resolve();
               return;
             }
-            
+
             // Set a reasonable timeout - don't block forever
             const connectionTimeout = setTimeout(() => {
               if (!connectionResolved) {
                 connectionResolved = true;
-              socket.off("connect", onConnect);
-              socket.off("connect_error", onError);
+                socket.off("connect", onConnect);
+                socket.off("connect_error", onError);
                 // Continue anyway - socket.io will reconnect in background
                 console.log("⏳ Connection in progress, continuing setup...");
                 resolve();
               }
             }, 8000); // 8 second timeout
-            
+
             const onConnect = () => {
               if (!connectionResolved) {
                 connectionResolved = true;
                 clearTimeout(connectionTimeout);
-              socket.off("connect", onConnect);
-              socket.off("connect_error", onError);
+                socket.off("connect", onConnect);
+                socket.off("connect_error", onError);
                 resolve();
               }
             };
-            
+
             const onError = () => {
               // Silent - socket.io handles retries automatically
               // Don't spam console with errors
             };
-            
+
             socket.on("connect", onConnect);
             socket.on("connect_error", onError);
           });
@@ -250,12 +256,14 @@ export default function RoomPage() {
 
         // Check WebRTC support
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error("WebRTC is not supported in this browser. Please use a modern browser like Chrome, Firefox, or Safari.");
+          throw new Error(
+            "WebRTC is not supported in this browser. Please use a modern browser like Chrome, Firefox, or Safari."
+          );
         }
 
         // Adaptive video constraints based on device capabilities and network
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
+
         // Try 1080p first, fallback to 720p for mobile or low-end devices
         const videoConstraints = isMobile
           ? {
@@ -288,27 +296,29 @@ export default function RoomPage() {
         });
 
         // Apply additional track settings for optimal quality
-        stream.getVideoTracks().forEach(track => {
+        stream.getVideoTracks().forEach((track) => {
           const settings = track.getSettings();
           // Apply constraints to ensure quality
-          track.applyConstraints({
-            width: videoConstraints.width,
-            height: videoConstraints.height,
-            frameRate: videoConstraints.frameRate,
-          }).catch(err => {
-            console.warn("Could not apply video constraints:", err);
-          });
+          track
+            .applyConstraints({
+              width: videoConstraints.width,
+              height: videoConstraints.height,
+              frameRate: videoConstraints.frameRate,
+            })
+            .catch((err) => {
+              console.warn("Could not apply video constraints:", err);
+            });
         });
 
-        stream.getAudioTracks().forEach(track => {
+        stream.getAudioTracks().forEach((track) => {
           // Apply audio constraints
-          track.applyConstraints(audioConstraints).catch(err => {
+          track.applyConstraints(audioConstraints).catch((err) => {
             console.warn("Could not apply audio constraints:", err);
           });
         });
 
         if (!mounted) {
-          stream.getTracks().forEach(track => track.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
 
@@ -324,19 +334,29 @@ export default function RoomPage() {
 
         console.log("🎥 Media stream obtained, initializing WebRTC...");
         // Get userName and meetingTitle for WebRTC
-        const currentUserName = userName || sessionStorage.getItem("userName") || `User-${Date.now()}`;
-        const currentMeetingTitle = meetingTitle || sessionStorage.getItem("meetingTitle") || null;
-        
+        const currentUserName =
+          userName ||
+          sessionStorage.getItem("userName") ||
+          `User-${Date.now()}`;
+        const currentMeetingTitle =
+          meetingTitle || sessionStorage.getItem("meetingTitle") || null;
+
         // Store meeting title in sessionStorage for WebRTC to use
         if (currentMeetingTitle) {
           sessionStorage.setItem("meetingTitle", currentMeetingTitle);
         }
         sessionStorage.setItem("userName", currentUserName);
-        
+
         // Initialize WebRTC connections - it will handle join-room internally
         // This ensures event listeners are set up before joining
-        cleanup = await initWebRTC(roomId, stream, setPeers, setMySocketId, currentUserName);
-        
+        cleanup = await initWebRTC(
+          roomId,
+          stream,
+          setPeers,
+          setMySocketId,
+          currentUserName
+        );
+
         if (mounted) {
           setIsConnected(true);
           setIsLoading(false);
@@ -347,10 +367,20 @@ export default function RoomPage() {
         console.error("❌ Error setting up media/WebRTC:", error);
         if (mounted) {
           setIsLoading(false);
-          if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-            toast.error("Please allow camera and microphone access to join the room");
-          } else if (error.message?.includes("Socket") || error.message?.includes("connection")) {
-            toast.error("Failed to connect to server. Please ensure the backend server is running on port 3001.");
+          if (
+            error.name === "NotAllowedError" ||
+            error.name === "PermissionDeniedError"
+          ) {
+            toast.error(
+              "Please allow camera and microphone access to join the room"
+            );
+          } else if (
+            error.message?.includes("Socket") ||
+            error.message?.includes("connection")
+          ) {
+            toast.error(
+              "Failed to connect to server. Please ensure the backend server is running on port 3001."
+            );
             console.error("Socket connection error details:", error);
           } else {
             toast.error(`Error: ${error.message || "Failed to setup media"}`);
@@ -400,7 +430,11 @@ export default function RoomPage() {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Icon name="video" size={14} className="text-white sm:w-4 sm:h-4" />
+                <Icon
+                  name="video"
+                  size={14}
+                  className="text-white sm:w-4 sm:h-4"
+                />
               </div>
               <h1 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent whitespace-nowrap">
                 Study Room
@@ -410,7 +444,10 @@ export default function RoomPage() {
             {/* Meeting Title */}
             {meetingTitle && (
               <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50 max-w-[100px] sm:max-w-[140px] lg:max-w-xs">
-                <p className="text-[10px] sm:text-xs text-gray-300 font-medium truncate" title={meetingTitle}>
+                <p
+                  className="text-[10px] sm:text-xs text-gray-300 font-medium truncate"
+                  title={meetingTitle}
+                >
                   {meetingTitle}
                 </p>
               </div>
@@ -420,8 +457,8 @@ export default function RoomPage() {
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
               <div
                 className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                  isConnected 
-                    ? "bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" 
+                  isConnected
+                    ? "bg-green-500 shadow-lg shadow-green-500/50 animate-pulse"
                     : "bg-red-500 shadow-lg shadow-red-500/50"
                 }`}
               />
@@ -433,7 +470,10 @@ export default function RoomPage() {
             {/* Room ID - Desktop only */}
             <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
               <Icon name="hash" size={12} className="text-gray-500" />
-              <p className="text-[10px] text-gray-400 font-mono truncate max-w-[100px]" title={roomId}>
+              <p
+                className="text-[10px] text-gray-400 font-mono truncate max-w-[100px]"
+                title={roomId}
+              >
                 {roomId}
               </p>
             </div>
@@ -447,12 +487,20 @@ export default function RoomPage() {
               {copied ? (
                 <>
                   <Icon name="check" size={12} className="text-green-400" />
-                  <span className="hidden sm:inline text-[10px] sm:text-xs text-green-400 font-medium">Copied</span>
+                  <span className="hidden sm:inline text-[10px] sm:text-xs text-green-400 font-medium">
+                    Copied
+                  </span>
                 </>
               ) : (
                 <>
-                  <Icon name="copy" size={12} className="text-gray-400 group-hover:text-blue-400 transition-colors" />
-                  <span className="hidden sm:inline text-[10px] sm:text-xs text-gray-400 group-hover:text-blue-400 font-medium transition-colors">Share</span>
+                  <Icon
+                    name="copy"
+                    size={12}
+                    className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                  />
+                  <span className="hidden sm:inline text-[10px] sm:text-xs text-gray-400 group-hover:text-blue-400 font-medium transition-colors">
+                    Share
+                  </span>
                 </>
               )}
             </button>
@@ -486,12 +534,16 @@ export default function RoomPage() {
       {isLoading && (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full border-2 border-zinc-800/50"></div>
-              <div className="absolute top-0 left-0 w-16 h-16 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+            <div className="flex justify-center">
+              <div className="relative w-16 h-16">
+                <div className="absolute inset-0 rounded-full border-2 border-zinc-800/50"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+              </div>
             </div>
             <div className="space-y-1">
-              <p className="text-gray-300 text-sm font-medium">Setting up your connection</p>
+              <p className="text-gray-300 text-sm font-medium">
+                Setting up your connection
+              </p>
               <p className="text-gray-500 text-xs">Please wait...</p>
             </div>
           </div>
@@ -502,7 +554,11 @@ export default function RoomPage() {
       {!isLoading && (
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden animate-in fade-in duration-500">
           {/* Video Grid - collapses when sidebar opens */}
-          <div className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 overflow-hidden transition-all duration-300 ${sidebarVisible ? "lg:w-[80%]" : "lg:w-full"}`}>
+          <div
+            className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 overflow-hidden transition-all duration-300 ${
+              sidebarVisible ? "lg:w-[80%]" : "lg:w-full"
+            }`}
+          >
             <VideoGrid
               peers={peers}
               localStream={localStream}
@@ -515,7 +571,9 @@ export default function RoomPage() {
 
           {/* Sidebar */}
           <div
-            className={`${sidebarVisible ? "block" : "hidden"} w-full lg:w-[20%] lg:min-w-[300px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-zinc-800/50 bg-zinc-900/50 transition-all duration-300`}
+            className={`${
+              sidebarVisible ? "block" : "hidden"
+            } w-full lg:w-[20%] lg:min-w-[300px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-zinc-800/50 bg-zinc-900/50 transition-all duration-300`}
           >
             <Sidebar />
           </div>
