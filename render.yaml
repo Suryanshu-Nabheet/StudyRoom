@@ -24,9 +24,9 @@ services:
       - key: NEXT_PUBLIC_SOCKET_URL
         sync: false  # Set to: https://your-backend-service.onrender.com
       - key: NEXT_PUBLIC_SOCKET_PORT
-        value: "443"  # Use 443 for HTTPS
+        value: "443"  # Use 443 for HTTPS (standard port, so URL won't include :443)
       - key: PORT
-        value: "3000"
+        value: "10000"  # Render assigns a PORT dynamically
 
   # Backend Service (Socket.io)
   - type: web
@@ -36,14 +36,11 @@ services:
     region: oregon  # Choose your region (same as frontend recommended)
     buildCommand: npm install
     startCommand: npm run server
-    healthCheckPath: /api/socket
     envVars:
       - key: NODE_ENV
         value: production
-      - key: SOCKET_PORT
-        value: "3001"
       - key: PORT
-        value: "3001"
+        value: "10000"  # Render assigns a PORT, but we can suggest a default
       - key: NEXT_PUBLIC_APP_URL
         sync: false  # Set to: https://your-frontend-service.onrender.com
 
