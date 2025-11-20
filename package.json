@@ -7,14 +7,20 @@
     "Backend"
   ],
   "scripts": {
-    "dev": "npm run dev -w Frontend",
+    "dev": "concurrently \"npm run dev -w Frontend\" \"npm run server:dev -w Backend\"",
     "build": "npm run build -w Frontend",
-    "start": "npm run start -w Frontend",
+    "start": "concurrently \"npm run start -w Frontend\" \"npm run server -w Backend\"",
     "lint": "npm run lint -w Frontend",
     "server": "npm run server -w Backend",
     "server:dev": "npm run server:dev -w Backend",
     "clean": "rm -rf Frontend/.next Backend/dist",
     "clean:all": "rm -rf Frontend/.next Frontend/node_modules Backend/node_modules node_modules dist"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
-

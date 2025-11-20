@@ -1,6 +1,6 @@
 {
   "app/room/[id]/page.tsx -> @/lib/socket": {
-    "id": "app/room/[id]/page.tsx -> @/lib/socket",
+    "id": 8379,
     "files": []
   }
 }

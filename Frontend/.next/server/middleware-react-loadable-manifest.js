@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"app/room/[id]/page.tsx -> @/lib/socket\":{\"id\":\"app/room/[id]/page.tsx -> @/lib/socket\",\"files\":[]}}"
+self.__REACT_LOADABLE_MANIFEST='{"app/room/[id]/page.tsx -> @/lib/socket":{"id":8379,"files":[]}}';
