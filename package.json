@@ -9,8 +9,7 @@
   "scripts": {
     "dev": "npm run dev -w Frontend",
     "build": "npm run build -w Frontend",
-    "start": "npm run start -w Frontend",
-    "start:render": "tsx server.ts",
+    "start": "tsx server.ts",
     "lint": "npm run lint -w Frontend",
     "server": "npm run server -w Backend",
     "server:dev": "npm run server:dev -w Backend",
