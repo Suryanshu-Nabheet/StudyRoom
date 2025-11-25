@@ -556,7 +556,7 @@ export default function RoomPage() {
           {/* Video Grid - collapses when sidebar opens */}
           <div
             className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 overflow-hidden transition-all duration-300 ${
-              sidebarVisible ? "lg:w-[80%]" : "lg:w-full"
+              sidebarVisible ? "lg:w-[75%]" : "lg:w-full"
             }`}
           >
             <VideoGrid
@@ -573,7 +573,7 @@ export default function RoomPage() {
           <div
             className={`${
               sidebarVisible ? "block" : "hidden"
-            } w-full lg:w-[20%] lg:min-w-[300px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-zinc-800/50 bg-zinc-900/50 transition-all duration-300`}
+            } w-full lg:w-[25%] lg:min-w-[350px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-zinc-800/50 bg-zinc-900/50 transition-all duration-300`}
           >
             <Sidebar />
           </div>

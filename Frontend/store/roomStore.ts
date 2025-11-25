@@ -1,7 +1,7 @@
 import Peer from "simple-peer";
 import { create } from "zustand";
 
-export type SidebarTab = "chat" | "participants" | "details";
+export type SidebarTab = "chat" | "participants" | "details" | "admin";
 
 interface PeerData {
   peer: Peer.Instance;
@@ -33,6 +33,12 @@ interface MediaStats {
   lastUpdated: number | null;
 }
 
+interface WaitingParticipant {
+  userId: string;
+  username: string;
+  joinedAt: Date;
+}
+
 interface RoomState {
   roomId: string | null;
   meetingTitle: string | null;
@@ -55,6 +61,9 @@ interface RoomState {
   networkStats: MediaStats;
   sidebarTab: SidebarTab;
   sidebarVisible: boolean;
+  isMeetingLocked: boolean;
+  waitingParticipants: WaitingParticipant[];
+  isScreenShareActive: boolean;
   setRoomId: (id: string) => void;
   setMeetingTitle: (title: string) => void;
   setUserName: (name: string) => void;
@@ -78,6 +87,10 @@ interface RoomState {
   setNetworkStats: (stats: Partial<MediaStats>) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   setSidebarVisible: (visible: boolean) => void;
+  setIsMeetingLocked: (locked: boolean) => void;
+  addWaitingParticipant: (participant: WaitingParticipant) => void;
+  removeWaitingParticipant: (userId: string) => void;
+  setIsScreenShareActive: (active: boolean) => void;
   clearChat: () => void;
 }
 
@@ -108,6 +121,9 @@ export const useRoomStore = create<RoomState>((set) => ({
   },
   sidebarTab: "chat",
   sidebarVisible: false,
+  isMeetingLocked: false,
+  waitingParticipants: [],
+  isScreenShareActive: false,
   setRoomId: (id) => set({ roomId: id }),
   setMeetingTitle: (title) => set({ meetingTitle: title }),
   setUserName: (name) => set({ userName: name }),
@@ -152,5 +168,15 @@ export const useRoomStore = create<RoomState>((set) => ({
     })),
   setSidebarTab: (tab) => set({ sidebarTab: tab, sidebarVisible: true }),
   setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
+  setIsMeetingLocked: (locked) => set({ isMeetingLocked: locked }),
+  addWaitingParticipant: (participant) =>
+    set((state) => ({
+      waitingParticipants: [...state.waitingParticipants, participant],
+    })),
+  removeWaitingParticipant: (userId) =>
+    set((state) => ({
+      waitingParticipants: state.waitingParticipants.filter(p => p.userId !== userId),
+    })),
+  setIsScreenShareActive: (active) => set({ isScreenShareActive: active }),
   clearChat: () => set({ chatMessages: [] }),
 }));

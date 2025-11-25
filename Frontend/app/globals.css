@@ -30,7 +30,8 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -44,15 +45,27 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.25), transparent 45%),
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(59, 130, 246, 0.25),
+      transparent 45%
+    ),
     radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.2), transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.25), transparent 45%);
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(99, 102, 241, 0.25),
+      transparent 45%
+    );
   opacity: 0.4;
   z-index: -1;
 }
 
 body::after {
-  background: radial-gradient(circle at 50% 50%, rgba(14, 116, 144, 0.25), transparent 60%);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(14, 116, 144, 0.25),
+    transparent 60%
+  );
   filter: blur(120px);
   opacity: 0.3;
 }
@@ -95,6 +108,28 @@ body::after {
   }
 }
 
+@keyframes audio-wave {
+  0%,
+  100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
 .animate-in {
   animation: fade-in 0.3s ease-out;
 }
@@ -111,6 +146,21 @@ body::after {
   animation: slide-in-from-right 0.4s ease-out;
 }
 
+/* Audio indicator bars */
+.audio-bar {
+  animation: audio-wave 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* Video tile wrapper for smooth transitions */
+.video-tile-wrapper {
+  @apply transition-all duration-300 ease-out;
+}
+
+.video-tile-wrapper:hover {
+  z-index: 10;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -118,15 +168,52 @@ body::after {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: transparent;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #404040;
   border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #525252;
 }
 
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Better focus states */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Disable focus outline for mouse users */
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+textarea {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Glass morphism effect */
+.glass {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent;
+}

@@ -5,6 +5,7 @@ export interface RoomMetadata {
   title: string | null;
   createdAt: Date;
   hostId: string;
+  locked?: boolean;
 }
 
 export interface UserData {
@@ -15,6 +16,7 @@ export interface UserData {
 export class SocketServer {
   private io: Server;
   private rooms: Map<string, Set<string>> = new Map(); // roomId -> Set of socketIds
+  private waitingParticipants: Map<string, Array<{ userId: string; username: string; joinedAt: Date }>> = new Map(); // roomId -> waiting list
   private users: Map<string, UserData> = new Map(); // socketId -> { roomId, username }
   private roomMetadata: Map<string, RoomMetadata> = new Map(); // roomId -> { title, createdAt, hostId }
 
@@ -93,62 +95,77 @@ export class SocketServer {
         this.leaveRoom(socket, userData.roomId);
       }
 
-      socket.join(roomId);
-
+      // Ensure room exists, create if new
       const isNewRoom = !this.rooms.has(roomId);
-
       if (isNewRoom) {
         this.rooms.set(roomId, new Set());
-        // First user to join becomes the host
         this.roomMetadata.set(roomId, {
           title: meetingTitle || null,
           createdAt: new Date(),
-          hostId: socket.id, // First user is the host
+          hostId: socket.id,
+          locked: false,
         });
         console.log(`🏠 Room ${roomId} created. Host: ${socket.id} (${username})`);
       }
 
+      const meta = this.roomMetadata.get(roomId);
+      
+      // If meeting is locked and this user is not the host, put them in waiting room
+      if (meta?.locked && meta.hostId !== socket.id) {
+        console.log(`🔒 Meeting locked. User ${socket.id} (${username}) placed in waiting room.`);
+        const waitingList = this.waitingParticipants.get(roomId) || [];
+        // Check if already in waiting list to avoid duplicates
+        if (!waitingList.some(p => p.userId === socket.id)) {
+          waitingList.push({ userId: socket.id, username, joinedAt: new Date() });
+          this.waitingParticipants.set(roomId, waitingList);
+        }
+        
+        // Notify host about waiting participants
+        if (meta.hostId) {
+          this.io.to(meta.hostId).emit('waiting-room-update', waitingList);
+        }
+        socket.emit('waiting-room', { message: 'The meeting is locked. You are in the waiting room.' });
+        return; // CRITICAL: Return here so they don't join the room!
+      }
+
+      socket.join(roomId);
+
       const room = this.rooms.get(roomId);
       if (!room) {
         console.error(`Room ${roomId} not found after creation`);
-        socket.emit("error", { message: "Failed to join room" });
+        socket.emit('error', { message: 'Failed to join room' });
         return;
       }
 
-      const otherUsers = Array.from(room);
-      const metadata = this.roomMetadata.get(roomId);
-
-      // Add user to room
+      // Add user to room structures
       room.add(socket.id);
       this.users.set(socket.id, { roomId, username: username || `User-${socket.id.slice(0, 6)}` });
 
       console.log(`User ${socket.id} (${username}) joined room ${roomId}. Room now has ${room.size} users.`);
 
-      // Send room metadata to the new user (including host status)
-      if (metadata) {
-        const isHost = metadata.hostId === socket.id;
-        socket.emit("room-metadata", {
-          ...metadata,
-          isHost,
-        });
+      // Send metadata (including host flag)
+      if (meta) {
+        const isHost = meta.hostId === socket.id;
+        socket.emit('room-metadata', { ...meta, isHost });
       }
 
-      // Send list of existing users to the new user (with host info)
-      socket.emit("room-users", otherUsers.map((id) => ({
+      // Send existing participants (excluding self)
+      const otherUsers = Array.from(room).filter(id => id !== socket.id);
+      socket.emit('room-users', otherUsers.map(id => ({
         id,
         username: this.users.get(id)?.username || `User-${id.slice(0, 6)}`,
-        isHost: metadata?.hostId === id,
+        isHost: meta?.hostId === id,
       })));
 
-      // Notify others in the room about the new user
-      socket.to(roomId).emit("user-joined", {
+      // Notify others about new participant
+      socket.to(roomId).emit('user-joined', {
         id: socket.id,
         username: this.users.get(socket.id)?.username || `User-${socket.id.slice(0, 6)}`,
-        isHost: metadata?.hostId === socket.id,
+        isHost: meta?.hostId === socket.id,
       });
     } catch (error) {
-      console.error("Error in join-room:", error);
-      socket.emit("error", { message: "Failed to join room" });
+      console.error('Error in join-room:', error);
+      socket.emit('error', { message: 'Failed to join room' });
     }
   }
 

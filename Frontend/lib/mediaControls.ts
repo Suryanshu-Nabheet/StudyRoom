@@ -123,10 +123,18 @@ export const startScreenShare = async () => {
     };
     toast.info("Screen sharing started");
   } catch (error) {
-    setMediaError(
-      error instanceof Error ? error.message : "Failed to start screen share"
-    );
-    captureError(error);
+    // Silently handle user cancellation - don't show error toast
+    if (error instanceof Error) {
+      // User cancelled the screen share dialog
+      if (error.name === "NotAllowedError" || error.name === "AbortError" || error.message.includes("denied")) {
+        console.log("Screen share cancelled by user");
+        return;
+      }
+      // Show error for actual failures
+      setMediaError(error.message);
+      toast.error(error.message);
+      console.error(error);
+    }
   }
 };
 

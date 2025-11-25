@@ -1,6 +1,7 @@
-"use client";
+  "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Icon from "@/components/ui/Icon";
 
 interface PeerData {
   peer: any;
@@ -29,7 +30,7 @@ function calculateGrid(totalParticipants: number, isMobile: boolean): { cols: nu
   
   if (isMobile) {
     // Mobile: simpler grid, max 2 columns
-    if (totalParticipants === 2) return { cols: 2, rows: 1 };
+    if (totalParticipants === 2) return { cols: 1, rows: 2 }; // Stack vertically on mobile for 2
     if (totalParticipants <= 4) return { cols: 2, rows: 2 };
     if (totalParticipants <= 6) return { cols: 2, rows: 3 };
     // For more on mobile, use 2 columns
@@ -45,7 +46,8 @@ function calculateGrid(totalParticipants: number, isMobile: boolean): { cols: nu
   if (totalParticipants <= 16) return { cols: 4, rows: 4 };
   if (totalParticipants <= 20) return { cols: 5, rows: 4 };
   if (totalParticipants <= 25) return { cols: 5, rows: 5 };
-  // For more than 25, use a reasonable grid
+  
+  // For larger numbers, prioritize visibility over perfect squares
   const cols = Math.ceil(Math.sqrt(totalParticipants));
   const rows = Math.ceil(totalParticipants / cols);
   return { cols, rows };
@@ -56,6 +58,7 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
   const displayStream = previewStream || localStream;
 
   // Detect mobile device
@@ -115,37 +118,114 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
   if (totalParticipants === 0) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-gray-400 text-sm">Waiting for others to join...</p>
+        <div className="text-center space-y-6 animate-in fade-in duration-700">
+          <div className="relative inline-flex">
+            <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl animate-pulse"></div>
+            <div className="relative inline-block">
+              <div className="w-20 h-20 rounded-full border-4 border-zinc-800/50 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full border-4 border-t-blue-500 border-r-blue-400 border-b-transparent border-l-transparent animate-spin"></div>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-gray-300 text-base font-medium">Waiting for participants...</p>
+            <p className="text-gray-500 text-sm">Invite others to join the meeting</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="grid gap-2 sm:gap-3 h-full w-full transition-all duration-300"
-      style={{
-        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        gridTemplateRows: `repeat(${rows}, 1fr)`,
-      }}
-    >
+    // Grid container – scrollable and responsive
+    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden p-2 sm:p-4">
+      <div
+        className="grid gap-2 sm:gap-3 lg:gap-4 w-full transition-all duration-500 ease-out"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          // Use auto rows to prevent cutting off, but try to fit in viewport if possible
+          gridAutoRows: rows > 2 ? 'minmax(200px, 1fr)' : 'minmax(0, 1fr)',
+          minHeight: rows > 2 ? 'min-content' : '100%',
+          height: rows > 2 ? 'auto' : '100%',
+        }}
+      >
       {/* Local video */}
       {displayStream && (
-        <div className="relative bg-gradient-to-br from-zinc-900 to-black rounded-lg sm:rounded-xl overflow-hidden border border-zinc-800 sm:border-2 shadow-xl sm:shadow-2xl transition-all duration-300 group">
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-          <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/70 backdrop-blur-md text-white text-[10px] sm:text-xs font-medium px-2 py-1 sm:px-3 sm:py-1.5 rounded sm:rounded-lg border border-white/10 shadow-lg truncate max-w-[calc(100%-4rem)]">
-            {userName || "You"}
+        <div 
+          className="video-tile-wrapper group"
+          onMouseEnter={() => setHoveredVideo('local')}
+          onMouseLeave={() => setHoveredVideo(null)}
+        >
+          <div className={`relative h-full rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
+            hoveredVideo === 'local' 
+              ? 'border-blue-500/40 shadow-lg shadow-blue-500/20' 
+              : 'border-zinc-800/50 shadow-md'
+          }`}>
+            {/* Video element */}
+            <video
+              ref={localVideoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Gradient overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+            
+            {/* Top right indicators */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+              {/* Connection indicator */}
+              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md border border-white/10">
+                <div className="relative">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <div className="absolute inset-0 w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div>
+                </div>
+                <span className="text-[9px] font-medium text-white hidden sm:inline">Live</span>
+              </div>
+            </div>
+
+            {/* Bottom info bar - more compact */}
+            <div className="absolute bottom-0 left-0 right-0 p-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-xl px-2 py-1.5 rounded-md border border-white/10 shadow-lg">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
+                    {(userName || "You").slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-white text-xs font-semibold">{userName || "You"}</span>
+                    <span className="text-blue-400 text-[9px] font-medium">You</span>
+                  </div>
+                </div>
+                
+                {/* Audio indicator */}
+                <div className="flex items-center gap-0.5 bg-black/70 backdrop-blur-xl px-1.5 py-1.5 rounded-md border border-white/10">
+                  <Icon name="mic" size={12} className="text-green-400" />
+                  <div className="flex gap-0.5">
+                    {[...Array(3)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="w-0.5 bg-green-400 rounded-full audio-bar"
+                        style={{ 
+                          height: `${6 + i * 2}px`,
+                          animationDelay: `${i * 0.1}s`
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hover overlay with actions - more subtle */}
+            {hoveredVideo === 'local' && (
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-200">
+                <button className="p-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-lg border border-white/20 transition-all duration-150">
+                  <Icon name="maximize" size={16} className="text-white" />
+                </button>
+              </div>
+            )}
           </div>
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full border border-black sm:border-2 shadow-lg animate-pulse"></div>
         </div>
       )}
 
@@ -155,32 +235,107 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
           // Only show peers that have remote streams (not local stream placeholders)
           return userId && peerData.stream && peerData.stream !== displayStream;
         })
-        .map(([userId, peerData], index) => (
-          <div
-            key={userId}
-            className="relative bg-gradient-to-br from-zinc-900 to-black rounded-lg sm:rounded-xl overflow-hidden border border-zinc-800 sm:border-2 shadow-xl sm:shadow-2xl transition-all duration-300 group animate-in fade-in slide-in-from-bottom-4"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <video
-              ref={(el) => {
-                if (el && userId) {
-                  videoRefs.current.set(userId, el);
-                  if (peerData.stream && el.srcObject !== peerData.stream) {
-                    el.srcObject = peerData.stream;
-                  }
-                }
-              }}
-              autoPlay
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-            <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/70 backdrop-blur-md text-white text-[10px] sm:text-xs font-medium px-2 py-1 sm:px-3 sm:py-1.5 rounded sm:rounded-lg border border-white/10 shadow-lg truncate max-w-[calc(100%-4rem)]">
-              {participants.get(userId)?.username || userId.slice(0, 8)}
+        .map(([userId, peerData], index) => {
+          const participant = participants.get(userId);
+          const displayName = participant?.username || userId.slice(0, 8);
+          const isHost = participant?.isHost || false;
+          
+          return (
+            <div
+              key={userId}
+              className="video-tile-wrapper group animate-in fade-in slide-in-from-bottom-4"
+              style={{ animationDelay: `${index * 80}ms` }}
+              onMouseEnter={() => setHoveredVideo(userId)}
+              onMouseLeave={() => setHoveredVideo(null)}
+            >
+              <div className={`relative h-full rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
+                hoveredVideo === userId 
+                  ? 'border-green-500/40 shadow-lg shadow-green-500/20' 
+                  : 'border-zinc-800/50 shadow-md'
+              }`}>
+                {/* Video element */}
+                <video
+                  ref={(el) => {
+                    if (el && userId) {
+                      videoRefs.current.set(userId, el);
+                      if (peerData.stream && el.srcObject !== peerData.stream) {
+                        el.srcObject = peerData.stream;
+                      }
+                    }
+                  }}
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Gradient overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+                
+                {/* Top right indicators */}
+                <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                  {isHost && (
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-amber-500/90 to-orange-500/90 backdrop-blur-md px-2 py-1 rounded-md border border-amber-400/30 shadow-lg">
+                      <Icon name="crown" size={10} className="text-white" />
+                      <span className="text-[9px] font-bold text-white hidden sm:inline">HOST</span>
+                    </div>
+                  )}
+                  {/* Connection indicator */}
+                  <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md border border-white/10">
+                    <div className="relative">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <div className="absolute inset-0 w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom info bar - more compact */}
+                <div className="absolute bottom-0 left-0 right-0 p-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-xl px-2 py-1.5 rounded-md border border-white/10 shadow-lg max-w-[70%]">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg flex-shrink-0">
+                        {displayName.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-white text-xs font-semibold truncate">{displayName}</span>
+                        <span className="text-green-400 text-[9px] font-medium">Participant</span>
+                      </div>
+                    </div>
+                    
+                    {/* Audio indicator */}
+                    <div className="flex items-center gap-0.5 bg-black/70 backdrop-blur-xl px-1.5 py-1.5 rounded-md border border-white/10">
+                      <Icon name="mic" size={12} className="text-green-400" />
+                      <div className="flex gap-0.5">
+                        {[...Array(3)].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="w-0.5 bg-green-400 rounded-full audio-bar"
+                            style={{ 
+                              height: `${6 + i * 2}px`,
+                              animationDelay: `${i * 0.1}s`
+                            }}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hover overlay with actions - more subtle */}
+                {hoveredVideo === userId && (
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 transition-opacity duration-200">
+                    <button className="p-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-lg border border-white/20 transition-all duration-150">
+                      <Icon name="maximize" size={16} className="text-white" />
+                    </button>
+                    <button className="p-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-lg border border-white/20 transition-all duration-150">
+                      <Icon name="pin" size={16} className="text-white" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full border border-black sm:border-2 shadow-lg"></div>
-          </div>
-        ))}
+          );
+        })}
+      </div>
     </div>
   );
 }

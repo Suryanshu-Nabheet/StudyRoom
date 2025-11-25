@@ -51,9 +51,9 @@ const MediaControls = memo(function MediaControls({
   ];
 
   const sidebarButtons: { id: string; icon: string; label: string; tab: SidebarTab }[] = [
-    { id: "chat", icon: "chat", label: "Open chat", tab: "chat" },
-    { id: "participants", icon: "users", label: "Participant list", tab: "participants" },
-    { id: "details", icon: "settings", label: "Meeting settings", tab: "details" },
+    { id: "chat", icon: "chat", label: "Chat", tab: "chat" },
+    { id: "participants", icon: "users", label: "Participants", tab: "participants" },
+    { id: "details", icon: "settings", label: "Settings", tab: "details" },
   ];
 
   const handleSidebar = (tab: SidebarTab) => {
@@ -62,89 +62,102 @@ const MediaControls = memo(function MediaControls({
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-4 inset-x-0 flex justify-center px-4 z-40">
-      <div className="pointer-events-auto flex items-center gap-3.5 rounded-2xl border border-white/10 bg-gradient-to-b from-black/80 to-black/90 px-4 py-2.5 shadow-2xl shadow-black/40 backdrop-blur-xl max-w-fit justify-center">
-        {/* Media Controls */}
-        <div className="flex items-center gap-2.5">
-          {controls.map((control) => (
-            <button
-              key={control.id}
-              onClick={control.onClick}
-              className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                control.active
-                  ? "bg-white/15 border border-white/20 text-white shadow-lg shadow-white/5"
-                  : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20"
-              }`}
-              aria-pressed={control.active}
-              aria-label={control.label}
-              title={control.label}
-            >
-              <Icon name={control.icon} size={17} />
-              <span className="sr-only">{control.label}</span>
-            </button>
-          ))}
+    <div className="pointer-events-none fixed bottom-0 inset-x-0 flex flex-col items-center justify-end z-40 pb-4 sm:pb-6 px-4">
+      {/* Compact fixed width container */}
+      <div className="pointer-events-auto w-full max-w-xl">
+        <div className="relative rounded-2xl border border-white/20 bg-black/60 backdrop-blur-2xl shadow-2xl shadow-black/80 overflow-hidden">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
           
-          {/* Leave Button */}
-          <button
-            onClick={onLeave}
-            className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex items-center justify-center shadow-lg shadow-red-500/25 transition-all duration-200 hover:shadow-red-500/40 ml-1"
-            aria-label="Leave meeting"
-            title="Leave meeting"
-          >
-            <Icon name="power" size={17} />
-            <span className="sr-only">Leave meeting</span>
-          </button>
-        </div>
+          {/* Main controls container - more compact */}
+          <div className="relative z-10 px-4 py-3 flex items-center justify-between gap-3">
+            {/* Left: Media Controls */}
+            <div className="flex items-center gap-2">
+              {controls.map((control) => (
+                <button
+                  key={control.id}
+                  onClick={control.onClick}
+                  className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                    control.active
+                      ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
+                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                  }`}
+                  aria-pressed={control.active}
+                  aria-label={control.label}
+                  title={control.label}
+                >
+                  <Icon name={control.icon} size={20} className="relative z-10" />
+                  <span className="sr-only">{control.label}</span>
+                </button>
+              ))}
+            </div>
 
-        {/* Divider */}
-        <div className="h-8 w-px bg-white/10" aria-hidden="true" />
-
-        {/* Sidebar Buttons */}
-        <div className="flex items-center gap-2">
-          {sidebarButtons.map((button) => (
+            {/* Center: Leave Button */}
             <button
-              key={button.id}
-              onClick={() => handleSidebar(button.tab)}
-              className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-200"
-              aria-label={button.label}
-              title={button.label}
+              onClick={onLeave}
+              className="relative h-10 sm:h-11 px-6 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-200 font-bold text-sm tracking-wide group"
+              aria-label="Leave meeting"
+              title="Leave meeting"
             >
-              <Icon name={button.icon} size={16} />
-              <span className="sr-only">{button.label}</span>
+              <Icon name="power" size={18} className="transition-transform group-hover:scale-110" />
+              <span className="hidden sm:inline">End</span>
             </button>
-          ))}
-        </div>
 
-        {/* Network Stats */}
-        <div className="hidden lg:flex items-center gap-3 pl-3 ml-2 border-l border-white/10">
-          <div className="text-center min-w-[60px]">
-            <p className="text-[9px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
-              Bitrate
-            </p>
-            <p className="text-xs font-semibold text-gray-200">
-              {networkStats.bitrate ? `${networkStats.bitrate}` : "—"}
-              {networkStats.bitrate && <span className="text-[10px] text-gray-400 ml-0.5">kbps</span>}
-            </p>
+            {/* Right: Sidebar Buttons */}
+            <div className="flex items-center gap-2">
+              {sidebarButtons.map((button) => (
+                <button
+                  key={button.id}
+                  onClick={() => handleSidebar(button.tab)}
+                  className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                    sidebarVisible && button.tab === useRoomStore.getState().sidebarTab
+                      ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
+                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                  }`}
+                  aria-label={button.label}
+                  title={button.label}
+                >
+                  <Icon name={button.icon} size={18} className="relative z-10" />
+                  <span className="sr-only">{button.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="text-center min-w-[50px]">
-            <p className="text-[9px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
-              RTT
-            </p>
-            <p className="text-xs font-semibold text-gray-200">
-              {networkStats.rtt ? `${networkStats.rtt}` : "—"}
-              {networkStats.rtt && <span className="text-[10px] text-gray-400 ml-0.5">ms</span>}
-            </p>
-          </div>
-          <div className="text-center min-w-[50px]">
-            <p className="text-[9px] font-medium uppercase tracking-wider text-gray-500 mb-0.5">
-              Jitter
-            </p>
-            <p className="text-xs font-semibold text-gray-200">
-              {networkStats.jitter
-                ? `${(networkStats.jitter * 1000).toFixed(1)}`
-                : "—"}
-              {networkStats.jitter && <span className="text-[10px] text-gray-400 ml-0.5">ms</span>}
-            </p>
+
+          {/* Bottom: Compact Network Stats */}
+          <div className="relative z-10 px-4 py-1.5 border-t border-white/10 bg-black/40 hidden sm:block">
+            <div className="flex items-center justify-center gap-4 text-[10px] font-medium tracking-wide">
+              <div className="flex items-center gap-1.5">
+                <Icon name="activity" size={10} className="text-blue-400" />
+                <span className="text-gray-400">Bitrate:</span>
+                <span className="text-white font-mono">
+                  {networkStats.bitrate ? `${networkStats.bitrate} kbps` : "—"}
+                </span>
+              </div>
+              
+              <div className="h-3 w-px bg-white/10"></div>
+              
+              <div className="flex items-center gap-1.5">
+                <Icon name="zap" size={10} className="text-green-400" />
+                <span className="text-gray-400">RTT:</span>
+                <span className={`font-mono ${
+                  networkStats.rtt && networkStats.rtt < 100 ? 'text-green-400' : 
+                  networkStats.rtt && networkStats.rtt < 200 ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  {networkStats.rtt ? `${networkStats.rtt} ms` : "—"}
+                </span>
+              </div>
+              
+              <div className="h-3 w-px bg-white/10"></div>
+              
+              <div className="flex items-center gap-1.5">
+                <Icon name="wifi" size={10} className="text-purple-400" />
+                <span className="text-gray-400">Jitter:</span>
+                <span className="text-white font-mono">
+                  {networkStats.jitter ? `${(networkStats.jitter * 1000).toFixed(1)} ms` : "—"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
