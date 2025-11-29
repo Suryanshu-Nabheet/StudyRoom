@@ -62,31 +62,31 @@ const MediaControls = memo(function MediaControls({
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-0 inset-x-0 flex flex-col items-center justify-end z-40 pb-4 sm:pb-6 px-4">
+    <div className="pointer-events-none fixed bottom-0 inset-x-0 flex flex-col items-center justify-end z-40 pb-2 sm:pb-4 md:pb-6 px-2 sm:px-4">
       {/* Compact fixed width container */}
-      <div className="pointer-events-auto w-full max-w-xl">
-        <div className="relative rounded-2xl border border-white/20 bg-black/60 backdrop-blur-2xl shadow-2xl shadow-black/80 overflow-hidden">
+      <div className="pointer-events-auto w-full max-w-full sm:max-w-xl">
+        <div className="relative rounded-xl sm:rounded-2xl border border-white/20 bg-black/70 sm:bg-black/60 backdrop-blur-2xl shadow-2xl shadow-black/80 overflow-hidden">
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
           
-          {/* Main controls container - more compact */}
-          <div className="relative z-10 px-4 py-3 flex items-center justify-between gap-3">
+          {/* Main controls container - fully responsive */}
+          <div className="relative z-10 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-3">
             {/* Left: Media Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {controls.map((control) => (
                 <button
                   key={control.id}
                   onClick={control.onClick}
-                  className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  className={`relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 touch-manipulation ${
                     control.active
                       ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
-                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 active:bg-white/15"
                   }`}
                   aria-pressed={control.active}
                   aria-label={control.label}
                   title={control.label}
                 >
-                  <Icon name={control.icon} size={20} className="relative z-10" />
+                  <Icon name={control.icon} size={18} className="sm:w-5 sm:h-5 relative z-10" />
                   <span className="sr-only">{control.label}</span>
                 </button>
               ))}
@@ -95,39 +95,39 @@ const MediaControls = memo(function MediaControls({
             {/* Center: Leave Button */}
             <button
               onClick={onLeave}
-              className="relative h-10 sm:h-11 px-6 rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex items-center justify-center gap-2 shadow-lg shadow-red-500/30 transition-all duration-200 font-bold text-sm tracking-wide group"
+              className="relative h-9 sm:h-10 md:h-11 px-3 sm:px-6 rounded-lg sm:rounded-xl bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 active:from-red-700 active:to-red-800 text-white flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg shadow-red-500/30 transition-all duration-200 font-bold text-xs sm:text-sm tracking-wide group touch-manipulation"
               aria-label="Leave meeting"
               title="Leave meeting"
             >
-              <Icon name="power" size={18} className="transition-transform group-hover:scale-110" />
-              <span className="hidden sm:inline">End</span>
+              <Icon name="power" size={16} className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:scale-110" />
+              <span className="hidden xs:inline sm:inline">End</span>
             </button>
 
             {/* Right: Sidebar Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {sidebarButtons.map((button) => (
                 <button
                   key={button.id}
                   onClick={() => handleSidebar(button.tab)}
-                  className={`relative h-10 w-10 sm:h-11 sm:w-11 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                  className={`relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 touch-manipulation ${
                     sidebarVisible && button.tab === useRoomStore.getState().sidebarTab
                       ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
-                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 active:bg-white/15"
                   }`}
                   aria-label={button.label}
                   title={button.label}
                 >
-                  <Icon name={button.icon} size={18} className="relative z-10" />
+                  <Icon name={button.icon} size={16} className="sm:w-[18px] sm:h-[18px] relative z-10" />
                   <span className="sr-only">{button.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Bottom: Compact Network Stats */}
-          <div className="relative z-10 px-4 py-1.5 border-t border-white/10 bg-black/40 hidden sm:block">
-            <div className="flex items-center justify-center gap-4 text-[10px] font-medium tracking-wide">
-              <div className="flex items-center gap-1.5">
+          {/* Bottom: Compact Network Stats - hidden on mobile */}
+          <div className="relative z-10 px-2 sm:px-4 py-1 sm:py-1.5 border-t border-white/10 bg-black/40 hidden md:block">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-medium tracking-wide">
+              <div className="flex items-center gap-1 sm:gap-1.5">
                 <Icon name="activity" size={10} className="text-blue-400" />
                 <span className="text-gray-400">Bitrate:</span>
                 <span className="text-white font-mono">
@@ -135,9 +135,9 @@ const MediaControls = memo(function MediaControls({
                 </span>
               </div>
               
-              <div className="h-3 w-px bg-white/10"></div>
+              <div className="h-2.5 sm:h-3 w-px bg-white/10"></div>
               
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 sm:gap-1.5">
                 <Icon name="zap" size={10} className="text-green-400" />
                 <span className="text-gray-400">RTT:</span>
                 <span className={`font-mono ${
@@ -148,9 +148,9 @@ const MediaControls = memo(function MediaControls({
                 </span>
               </div>
               
-              <div className="h-3 w-px bg-white/10"></div>
+              <div className="h-2.5 sm:h-3 w-px bg-white/10"></div>
               
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 sm:gap-1.5">
                 <Icon name="wifi" size={10} className="text-purple-400" />
                 <span className="text-gray-400">Jitter:</span>
                 <span className="text-white font-mono">

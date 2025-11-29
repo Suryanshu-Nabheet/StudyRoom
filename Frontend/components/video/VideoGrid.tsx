@@ -138,13 +138,13 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
 
   return (
     // Grid container – scrollable and responsive
-    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden p-2 sm:p-4">
+    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden p-1 sm:p-2 md:p-4">
       <div
-        className="grid gap-2 sm:gap-3 lg:gap-4 w-full transition-all duration-500 ease-out"
+        className="grid gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 w-full transition-all duration-500 ease-out"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           // Use auto rows to prevent cutting off, but try to fit in viewport if possible
-          gridAutoRows: rows > 2 ? 'minmax(200px, 1fr)' : 'minmax(0, 1fr)',
+          gridAutoRows: rows > 2 ? 'minmax(150px, 1fr)' : 'minmax(0, 1fr)',
           minHeight: rows > 2 ? 'min-content' : '100%',
           height: rows > 2 ? 'auto' : '100%',
         }}
@@ -156,7 +156,7 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
           onMouseEnter={() => setHoveredVideo('local')}
           onMouseLeave={() => setHoveredVideo(null)}
         >
-          <div className={`relative h-full rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
+          <div className={`relative h-full rounded-md sm:rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
             hoveredVideo === 'local' 
               ? 'border-blue-500/40 shadow-lg shadow-blue-500/20' 
               : 'border-zinc-800/50 shadow-md'
@@ -174,40 +174,40 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
             
             {/* Top right indicators */}
-            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+            <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex items-center gap-1 sm:gap-1.5">
               {/* Connection indicator */}
-              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md border border-white/10">
+              <div className="flex items-center gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-[9px] border border-white/10">
                 <div className="relative">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                  <div className="absolute inset-0 w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div>
+                  <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-500 rounded-full"></div>
+                  <div className="absolute inset-0 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-500 rounded-full animate-ping"></div>
                 </div>
-                <span className="text-[9px] font-medium text-white hidden sm:inline">Live</span>
+                <span className="font-medium text-white hidden xs:inline">Live</span>
               </div>
             </div>
 
-            {/* Bottom info bar - more compact */}
-            <div className="absolute bottom-0 left-0 right-0 p-2">
+            {/* Bottom info bar - more compact on mobile */}
+            <div className="absolute bottom-0 left-0 right-0 p-1.5 sm:p-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-xl px-2 py-1.5 rounded-md border border-white/10 shadow-lg">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
+                <div className="flex items-center gap-1 sm:gap-1.5 bg-black/70 backdrop-blur-xl px-1.5 sm:px-2 py-1 sm:py-1.5 rounded border border-white/10 shadow-lg">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-[9px] sm:text-[10px] font-bold shadow-lg">
                     {(userName || "You").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-white text-xs font-semibold">{userName || "You"}</span>
-                    <span className="text-blue-400 text-[9px] font-medium">You</span>
+                    <span className="text-white text-[10px] sm:text-xs font-semibold truncate max-w-[80px] sm:max-w-none">{userName || "You"}</span>
+                    <span className="text-blue-400 text-[8px] sm:text-[9px] font-medium">You</span>
                   </div>
                 </div>
                 
                 {/* Audio indicator */}
-                <div className="flex items-center gap-0.5 bg-black/70 backdrop-blur-xl px-1.5 py-1.5 rounded-md border border-white/10">
-                  <Icon name="mic" size={12} className="text-green-400" />
+                <div className="flex items-center gap-0.5 bg-black/70 backdrop-blur-xl px-1 sm:px-1.5 py-1 sm:py-1.5 rounded border border-white/10">
+                  <Icon name="mic" size={10} className="sm:w-3 sm:h-3 text-green-400" />
                   <div className="flex gap-0.5">
                     {[...Array(3)].map((_, i) => (
                       <div 
                         key={i} 
                         className="w-0.5 bg-green-400 rounded-full audio-bar"
                         style={{ 
-                          height: `${6 + i * 2}px`,
+                          height: `${4 + i * 2}px`,
                           animationDelay: `${i * 0.1}s`
                         }}
                       ></div>
@@ -220,8 +220,8 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
             {/* Hover overlay with actions - more subtle */}
             {hoveredVideo === 'local' && (
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-200">
-                <button className="p-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-lg border border-white/20 transition-all duration-150">
-                  <Icon name="maximize" size={16} className="text-white" />
+                <button className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/15 backdrop-blur-md rounded-lg border border-white/20 transition-all duration-150 touch-manipulation">
+                  <Icon name="maximize" size={14} className="sm:w-4 sm:h-4 text-white" />
                 </button>
               </div>
             )}

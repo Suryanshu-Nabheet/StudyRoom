@@ -59,7 +59,7 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
   ];
 
   const rootClass = compact
-    ? "flex flex-col overflow-hidden w-[240px] max-h-[70vh] rounded-3xl bg-black/95 border border-blue-900/40 shadow-2xl backdrop-blur-lg"
+    ? "flex flex-col overflow-hidden w-full sm:w-[280px] md:w-[320px] lg:w-[340px] max-h-[85vh] sm:max-h-[75vh] rounded-2xl sm:rounded-3xl bg-black/95 border border-blue-900/40 shadow-2xl backdrop-blur-lg"
     : "h-full flex flex-col bg-gradient-to-b from-zinc-900/95 to-black/95 backdrop-blur-xl border-l border-zinc-800/50 shadow-2xl overflow-hidden";
 
   return (
