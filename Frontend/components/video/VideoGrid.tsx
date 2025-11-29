@@ -138,9 +138,9 @@ export default function VideoGrid({ peers, localStream, previewStream, mySocketI
 
   return (
     // Grid container – scrollable and responsive
-    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden p-1 sm:p-2 md:p-4">
+    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden">
       <div
-        className="grid gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 w-full transition-all duration-500 ease-out"
+        className="grid gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 w-full transition-all duration-500 ease-out p-1 sm:p-0"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           // Use auto rows to prevent cutting off, but try to fit in viewport if possible

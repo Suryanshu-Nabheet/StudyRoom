@@ -555,7 +555,7 @@ export default function RoomPage() {
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden animate-in fade-in duration-500">
           {/* Video Grid - collapses when sidebar opens */}
           <div
-            className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 overflow-hidden transition-all duration-300 ${
+            className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 pb-24 sm:pb-28 md:pb-32 overflow-hidden transition-all duration-300 ${
               sidebarVisible ? "lg:w-[75%]" : "lg:w-full"
             }`}
           >
