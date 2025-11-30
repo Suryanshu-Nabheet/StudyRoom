@@ -26,9 +26,9 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           {/* Brand */}
           <div className="space-y-2">
-            <h4 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              StudyRoom | InnovateX
-            </h4>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+              StudyRoom
+            </h3>
             <p className="text-xs text-gray-500 max-w-md">
               Premium meeting experience. Built for teams who care about
               quality.

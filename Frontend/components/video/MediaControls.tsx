@@ -76,7 +76,7 @@ const MediaControls = memo(function MediaControls({
       {/* Compact fixed width container */}
       <div className="pointer-events-auto w-full max-w-full sm:max-w-xl">
         <div className="relative rounded-xl sm:rounded-2xl border border-blue-200/30 bg-white/10 backdrop-blur-2xl shadow-2xl shadow-blue-600/10 overflow-hidden">
-          {/* InnovateX Blue gradient overlay */}
+          {/* Blue gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-transparent to-blue-600/10 pointer-events-none"></div>
 
           {/* Main controls container - fully responsive */}

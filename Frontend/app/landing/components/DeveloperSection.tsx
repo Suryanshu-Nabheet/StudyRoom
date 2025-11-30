@@ -45,14 +45,14 @@ export default function DeveloperSection() {
                 </p>
               </div>
 
-              <p className="text-gray-600 text-lg leading-relaxed">
-                Passionate about building innovative solutions at{" "}
-                <span className="font-semibold text-gray-900">InnovateX</span>,
-                a CS lab under{" "}
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                Built with passion by{" "}
                 <span className="font-semibold text-gray-900">
-                  Gyan Niketan
+                  Suryanshu Nabheet
                 </span>
-                . Dedicated to creating intuitive and powerful web applications
+                , a developer focused on creating seamless real-time
+                communication experiences with cutting-edge WebRTC technology.
+                Dedicated to creating intuitive and powerful web applications
                 that solve real-world problems.
               </p>
 

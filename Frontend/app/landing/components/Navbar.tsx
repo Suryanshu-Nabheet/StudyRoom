@@ -37,11 +37,8 @@ export default function Navbar({ onCreateRoom, onJoinRoom }: NavbarProps) {
             height={32}
             className="h-8 w-8"
           />
-          <h1 className="text-lg font-bold tracking-tight text-gray-900 md:text-xl flex items-center gap-1">
-            StudyRoom <span className="text-gray-300">|</span>{" "}
-            <span>
-              Innovate<span className="text-blue-600">X</span>
-            </span>
+          <h1 className="text-lg font-bold tracking-tight text-gray-900 md:text-xl">
+            StudyRoom
           </h1>
         </div>
 

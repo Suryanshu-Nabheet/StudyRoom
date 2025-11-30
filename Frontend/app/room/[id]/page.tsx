@@ -437,11 +437,8 @@ export default function RoomPage() {
                 height={32}
                 className="w-7 h-7 sm:w-8 sm:h-8"
               />
-              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 whitespace-nowrap flex items-center gap-1">
-                StudyRoom <span className="text-gray-400">|</span>{" "}
-                <span className="text-gray-900">
-                  Innovate<span className="text-blue-600">X</span>
-                </span>
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 whitespace-nowrap">
+                StudyRoom
               </h1>
             </div>
 
