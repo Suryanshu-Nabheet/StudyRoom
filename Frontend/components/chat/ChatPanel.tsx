@@ -62,9 +62,9 @@ export default function ChatPanel() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white/10 backdrop-blur-sm">
       {/* Header */}
-      <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50/80 backdrop-blur-sm">
+      <div className="p-3 sm:p-4 border-b border-blue-200/30 bg-gradient-to-r from-blue-600/10 via-transparent to-blue-600/10">
         <div className="flex items-center justify-between">
           <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2">
             <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg border border-blue-100">
@@ -132,7 +132,7 @@ export default function ChatPanel() {
                   className={`max-w-[90%] sm:max-w-[85%] md:max-w-[75%] rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-sm transition-all duration-200 hover:shadow-md ${
                     isMyMessage
                       ? "bg-blue-600 text-white rounded-br-md"
-                      : "bg-white text-gray-900 border border-gray-200 rounded-bl-md"
+                      : "bg-white/20 backdrop-blur-sm text-gray-900 border border-blue-200/30 rounded-bl-md"
                   }`}
                 >
                   {!isMyMessage && (
@@ -175,7 +175,7 @@ export default function ChatPanel() {
       </div>
 
       {/* Input */}
-      <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50/80 backdrop-blur-sm">
+      <div className="p-3 sm:p-4 border-t border-blue-200/30 bg-gradient-to-r from-blue-600/10 via-transparent to-blue-600/10">
         <div className="flex gap-1.5 sm:gap-2">
           <div className="flex-1 relative">
             <input
@@ -186,7 +186,7 @@ export default function ChatPanel() {
               onKeyPress={handleKeyPress}
               placeholder={isConnected ? "Type a message..." : "Connecting..."}
               disabled={!isConnected}
-              className="w-full bg-white border-2 border-gray-200 focus:border-blue-500 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 transition-all duration-200"
+              className="w-full bg-white/20 backdrop-blur-sm border-2 border-blue-200/30 focus:border-blue-500 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 transition-all duration-200"
             />
             {message.trim() && (
               <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-[9px] sm:text-xs text-gray-400 font-medium">

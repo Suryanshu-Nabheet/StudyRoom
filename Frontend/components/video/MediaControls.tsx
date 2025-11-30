@@ -75,9 +75,9 @@ const MediaControls = memo(function MediaControls({
     <div className="pointer-events-none fixed bottom-0 inset-x-0 flex flex-col items-center justify-end z-40 pb-2 sm:pb-4 md:pb-6 px-2 sm:px-4">
       {/* Compact fixed width container */}
       <div className="pointer-events-auto w-full max-w-full sm:max-w-xl">
-        <div className="relative rounded-xl sm:rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-2xl shadow-xl shadow-blue-900/5 overflow-hidden">
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+        <div className="relative rounded-xl sm:rounded-2xl border border-blue-200/30 bg-white/10 backdrop-blur-2xl shadow-2xl shadow-blue-600/10 overflow-hidden">
+          {/* InnovateX Blue gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-transparent to-blue-600/10 pointer-events-none"></div>
 
           {/* Main controls container - fully responsive */}
           <div className="relative z-10 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-3">

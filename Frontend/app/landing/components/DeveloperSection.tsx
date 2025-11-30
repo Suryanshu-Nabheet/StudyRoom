@@ -18,13 +18,13 @@ export default function DeveloperSection() {
               className="relative group"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity" />
-              <div className="relative aspect-square max-w-md mx-auto overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg">
+              <div className="relative max-w-md mx-auto overflow-hidden rounded-2xl bg-white">
                 <Image
-                  src="https://github.com/suryanshunabheet.png"
+                  src="/Suryanshu_Nabheet.png"
                   alt="Suryanshu Nabheet"
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
+                  width={300} // <-- increased size
+                  height={300} // <-- increased size
+                  className="w-full h-full object-contain"
                 />
               </div>
             </motion.div>

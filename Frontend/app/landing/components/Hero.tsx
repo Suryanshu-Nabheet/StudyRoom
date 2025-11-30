@@ -147,15 +147,20 @@ export default function Hero({
         </div>
       </div>
 
-      <RoomModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        roomId={roomId}
-        setRoomId={setRoomId}
-        onCreateRoom={onCreateRoom}
-        onJoinRoom={onJoinRoom}
-        initialMode={modalMode}
-      />
+      {isModalOpen && (
+        <RoomModal
+          mode={modalMode}
+          onClose={() => setIsModalOpen(false)}
+          onCreateRoom={(name, title) => {
+            onCreateRoom(name, title);
+            setIsModalOpen(false);
+          }}
+          onJoinRoom={(name) => {
+            onJoinRoom(name);
+            setIsModalOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }
