@@ -3,10 +3,26 @@
 import { motion } from "framer-motion";
 
 const footerLinks = [
-  { label: "GitHub", href: "https://github.com" },
-  { label: "Documentation", href: "#" },
-  { label: "Support", href: "mailto:hello@studyroom.dev" },
-  { label: "Privacy", href: "#" },
+  {
+    label: "License",
+    href: "https://github.com/Suryanshu-Nabheet/StudyRoom/blob/main/LICENSE",
+  },
+  {
+    label: "Code of Conduct",
+    href: "https://github.com/Suryanshu-Nabheet/StudyRoom/blob/main/CODE_OF_CONDUCT.md",
+  },
+  {
+    label: "Contributing",
+    href: "https://github.com/Suryanshu-Nabheet/StudyRoom/blob/main/CONTRIBUTING.md",
+  },
+  {
+    label: "Security",
+    href: "https://github.com/Suryanshu-Nabheet/StudyRoom/blob/main/SECURITY.md",
+  },
+  {
+    label: "Repository",
+    href: "https://github.com/Suryanshu-Nabheet/StudyRoom",
+  },
 ];
 
 export default function Footer() {

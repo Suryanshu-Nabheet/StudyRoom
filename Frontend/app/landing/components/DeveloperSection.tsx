@@ -58,7 +58,7 @@ export default function DeveloperSection() {
 
               <div className="flex gap-4 pt-4">
                 <a
-                  href="https://github.com/suryanshunabheet"
+                  href="https://github.com/Suryanshu-Nabheet"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 bg-gray-100 rounded-full text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
@@ -66,7 +66,7 @@ export default function DeveloperSection() {
                   <Github className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://linkedin.com/in/suryanshunabheet"
+                  href="https://www.linkedin.com/in/suryanshu-nabheet/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 bg-gray-100 rounded-full text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
@@ -74,7 +74,7 @@ export default function DeveloperSection() {
                   <Linkedin className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://twitter.com/suryanshunabheet"
+                  href="https://x.com/suryanshuxdev"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 bg-gray-100 rounded-full text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
