@@ -76,42 +76,46 @@ export default function RoomModal({
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="w-full max-w-md pointer-events-auto"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0A] shadow-2xl shadow-blue-900/20">
+              <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-blue-500/10">
                 {/* Close Button */}
                 <button
                   onClick={onClose}
-                  className="absolute top-3 right-3 z-20 rounded-full p-2 text-gray-400 hover:bg-white/10 hover:text-white transition-all"
+                  className="absolute top-3 right-3 z-20 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-all"
                 >
                   <Icon name="close" size={18} />
                 </button>
 
                 {/* Tabs */}
-                <div className="flex border-b border-white/10">
+                <div className="flex border-b border-gray-100">
                   <button
                     onClick={() => setMode("create")}
                     className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                      mode === "create" ? "text-white" : "text-gray-500 hover:text-gray-300"
+                      mode === "create"
+                        ? "text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     Create Room
                     {mode === "create" && (
                       <motion.div
                         layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
                       />
                     )}
                   </button>
                   <button
                     onClick={() => setMode("join")}
                     className={`flex-1 py-4 text-sm font-semibold transition-colors relative ${
-                      mode === "join" ? "text-white" : "text-gray-500 hover:text-gray-300"
+                      mode === "join"
+                        ? "text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     Join Room
                     {mode === "join" && (
                       <motion.div
                         layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
                       />
                     )}
                   </button>
@@ -122,7 +126,7 @@ export default function RoomModal({
                   {mode === "create" ? (
                     <form onSubmit={handleCreate} className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Your Name
                         </label>
                         <input
@@ -130,12 +134,12 @@ export default function RoomModal({
                           value={userName}
                           onChange={(e) => setUserName(e.target.value)}
                           placeholder="Enter your name"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                           autoFocus
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Meeting Title
                         </label>
                         <input
@@ -143,13 +147,15 @@ export default function RoomModal({
                           value={meetingTitle}
                           onChange={(e) => setMeetingTitle(e.target.value)}
                           placeholder="e.g. Weekly Sync"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                         />
                       </div>
                       <button
                         type="submit"
-                        disabled={!userName.trim() || !meetingTitle.trim() || isCreating}
-                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        disabled={
+                          !userName.trim() || !meetingTitle.trim() || isCreating
+                        }
+                        className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                       >
                         {isCreating ? "Creating..." : "Start Meeting"}
                       </button>
@@ -157,7 +163,7 @@ export default function RoomModal({
                   ) : (
                     <form onSubmit={handleJoin} className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Your Name
                         </label>
                         <input
@@ -165,12 +171,12 @@ export default function RoomModal({
                           value={userName}
                           onChange={(e) => setUserName(e.target.value)}
                           placeholder="Enter your name"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                           autoFocus
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Room ID or Link
                         </label>
                         <input
@@ -179,20 +185,24 @@ export default function RoomModal({
                           onChange={(e) => {
                             let value = e.target.value;
                             if (value.includes("?token=")) {
-                              value = value.split("?token=")[1]?.split("&")[0] || value;
+                              value =
+                                value.split("?token=")[1]?.split("&")[0] ||
+                                value;
                             } else if (value.includes("/room/")) {
-                              value = value.split("/room/")[1]?.split("?")[0] || value;
+                              value =
+                                value.split("/room/")[1]?.split("?")[0] ||
+                                value;
                             }
                             setRoomId(value);
                           }}
                           placeholder="Paste Room ID or URL"
-                          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
+                          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={!userName.trim() || !roomId.trim()}
-                        className="w-full rounded-xl bg-white py-3.5 text-sm font-semibold text-black hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full rounded-xl bg-gray-900 py-3.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Join Meeting
                       </button>

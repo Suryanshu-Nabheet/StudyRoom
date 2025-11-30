@@ -10,6 +10,7 @@ import Icon from "@/components/ui/Icon";
 import { useRoomStore } from "@/store/roomStore";
 import { initWebRTC } from "@/lib/webrtc";
 import { toast } from "@/components/ui/toast";
+import Image from "next/image";
 
 export default function RoomPage() {
   const params = useParams();
@@ -421,31 +422,34 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-black via-zinc-950 to-black flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       {/* Header - Refined and compact */}
-      <div className="bg-gradient-to-b from-zinc-900/95 to-zinc-900/85 backdrop-blur-xl border-b border-zinc-800/50 px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex-shrink-0 shadow-xl shadow-black/20">
+      <div className="bg-white/90 backdrop-blur-xl border-b border-gray-200 px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex-shrink-0 shadow-sm z-50">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
           {/* Left Section */}
           <div className="flex items-center gap-2 sm:gap-2.5 lg:gap-3 flex-1 min-w-0 w-full sm:w-auto">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Icon
-                  name="video"
-                  size={14}
-                  className="text-white sm:w-4 sm:h-4"
-                />
-              </div>
-              <h1 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent whitespace-nowrap">
-                Study Room
+              <Image
+                src="/favicon.svg"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="w-7 h-7 sm:w-8 sm:h-8"
+              />
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 whitespace-nowrap flex items-center gap-1">
+                StudyRoom <span className="text-gray-400">|</span>{" "}
+                <span className="text-gray-900">
+                  Innovate<span className="text-blue-600">X</span>
+                </span>
               </h1>
             </div>
 
             {/* Meeting Title */}
             {meetingTitle && (
-              <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50 max-w-[100px] sm:max-w-[140px] lg:max-w-xs">
+              <div className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gray-100 rounded-lg border border-gray-200 max-w-[100px] sm:max-w-[140px] lg:max-w-xs">
                 <p
-                  className="text-[10px] sm:text-xs text-gray-300 font-medium truncate"
+                  className="text-[10px] sm:text-xs text-gray-700 font-medium truncate"
                   title={meetingTitle}
                 >
                   {meetingTitle}
@@ -454,7 +458,7 @@ export default function RoomPage() {
             )}
 
             {/* Connection Status */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 rounded-lg border border-gray-200">
               <div
                 className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
                   isConnected
@@ -462,16 +466,16 @@ export default function RoomPage() {
                     : "bg-red-500 shadow-lg shadow-red-500/50"
                 }`}
               />
-              <span className="text-[10px] sm:text-xs text-gray-300 font-medium whitespace-nowrap">
+              <span className="text-[10px] sm:text-xs text-gray-600 font-medium whitespace-nowrap">
                 {isConnected ? "Connected" : "Connecting..."}
               </span>
             </div>
 
             {/* Room ID - Desktop only */}
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800/60 rounded-lg border border-zinc-700/50">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 rounded-lg border border-gray-200">
               <Icon name="hash" size={12} className="text-gray-500" />
               <p
-                className="text-[10px] text-gray-400 font-mono truncate max-w-[100px]"
+                className="text-[10px] text-gray-500 font-mono truncate max-w-[100px]"
                 title={roomId}
               >
                 {roomId}
@@ -481,13 +485,13 @@ export default function RoomPage() {
             {/* Share Button */}
             <button
               onClick={copyShareLink}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 hover:border-blue-500/40 rounded-lg transition-all duration-200 group"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:border-blue-300 rounded-lg transition-all duration-200 group"
               title="Copy meeting link"
             >
               {copied ? (
                 <>
-                  <Icon name="check" size={12} className="text-green-400" />
-                  <span className="hidden sm:inline text-[10px] sm:text-xs text-green-400 font-medium">
+                  <Icon name="check" size={12} className="text-green-600" />
+                  <span className="hidden sm:inline text-[10px] sm:text-xs text-green-600 font-medium">
                     Copied
                   </span>
                 </>
@@ -496,9 +500,9 @@ export default function RoomPage() {
                   <Icon
                     name="copy"
                     size={12}
-                    className="text-gray-400 group-hover:text-blue-400 transition-colors"
+                    className="text-gray-500 group-hover:text-blue-600 transition-colors"
                   />
-                  <span className="hidden sm:inline text-[10px] sm:text-xs text-gray-400 group-hover:text-blue-400 font-medium transition-colors">
+                  <span className="hidden sm:inline text-[10px] sm:text-xs text-gray-500 group-hover:text-blue-600 font-medium transition-colors">
                     Share
                   </span>
                 </>
@@ -511,7 +515,7 @@ export default function RoomPage() {
             {isHost && (
               <button
                 onClick={handleEndMeeting}
-                className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-200 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 whitespace-nowrap flex items-center justify-center gap-1.5"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30 whitespace-nowrap flex items-center justify-center gap-1.5"
                 title="End meeting for all participants"
               >
                 <Icon name="power" size={12} className="sm:w-3.5 sm:h-3.5" />
@@ -524,7 +528,7 @@ export default function RoomPage() {
 
       {/* Media Error Banner */}
       {mediaError && (
-        <div className="bg-red-500/10 border-b border-red-500/30 text-red-200 text-xs sm:text-sm px-4 py-2.5 text-center flex items-center justify-center gap-2">
+        <div className="bg-red-50 border-b border-red-200 text-red-700 text-xs sm:text-sm px-4 py-2.5 text-center flex items-center justify-center gap-2">
           <Icon name="alert-triangle" size={14} />
           <span>{mediaError}</span>
         </div>
@@ -536,12 +540,12 @@ export default function RoomPage() {
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="relative w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-2 border-zinc-800/50"></div>
-                <div className="absolute inset-0 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-gray-200"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-gray-300 text-sm font-medium">
+              <p className="text-gray-900 text-sm font-medium">
                 Setting up your connection
               </p>
               <p className="text-gray-500 text-xs">Please wait...</p>
@@ -555,7 +559,7 @@ export default function RoomPage() {
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden animate-in fade-in duration-500">
           {/* Video Grid - collapses when sidebar opens */}
           <div
-            className={`w-full bg-gradient-to-br from-zinc-950 to-black p-2 sm:p-3 lg:p-4 pb-24 sm:pb-28 md:pb-32 overflow-hidden transition-all duration-300 ${
+            className={`w-full bg-gray-50 p-2 sm:p-3 lg:p-4 pb-24 sm:pb-28 md:pb-32 overflow-hidden transition-all duration-300 ${
               sidebarVisible ? "lg:w-[75%]" : "lg:w-full"
             }`}
           >
@@ -573,7 +577,7 @@ export default function RoomPage() {
           <div
             className={`${
               sidebarVisible ? "block" : "hidden"
-            } w-full lg:w-[25%] lg:min-w-[350px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-zinc-800/50 bg-zinc-900/50 transition-all duration-300`}
+            } w-full lg:w-[25%] lg:min-w-[350px] max-h-[40vh] lg:max-h-none border-t lg:border-t-0 lg:border-l border-gray-200 bg-white transition-all duration-300`}
           >
             <Sidebar />
           </div>

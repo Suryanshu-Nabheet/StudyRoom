@@ -20,7 +20,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: "#000000",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="bg-black text-white antialiased">
+      <body className="bg-white text-gray-900 antialiased">
         {children}
         <ToastContainer />
       </body>

@@ -14,7 +14,12 @@ interface HeroProps {
   onJoinRoom: (name: string) => void;
 }
 
-export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: HeroProps) {
+export default function Hero({
+  roomId,
+  setRoomId,
+  onCreateRoom,
+  onJoinRoom,
+}: HeroProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "join">("create");
 
@@ -43,10 +48,10 @@ export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: He
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mx-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-sm mb-4"
+            className="mx-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 backdrop-blur-sm mb-4"
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-[10px] uppercase tracking-[0.25em] text-blue-300 font-medium">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="text-[10px] uppercase tracking-[0.25em] text-blue-600 font-medium">
               Study Room
             </span>
           </motion.div>
@@ -65,7 +70,7 @@ export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: He
                     delay: index * 0.1,
                     ease: "easeInOut",
                   }}
-                  className="mr-2 inline-block bg-gradient-to-br from-white via-blue-50 to-blue-200 bg-clip-text text-transparent"
+                  className="mr-2 inline-block bg-gradient-to-br from-gray-900 via-blue-800 to-blue-600 bg-clip-text text-transparent"
                 >
                   {word}
                 </motion.span>
@@ -77,10 +82,14 @@ export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: He
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            className="mx-auto max-w-2xl text-lg text-gray-400 leading-relaxed"
+            className="mx-auto max-w-2xl text-lg text-gray-600 leading-relaxed"
           >
-            Launch secure WebRTC rooms in seconds with <span className="text-blue-400 font-semibold">studio-grade quality</span>. 
-            No dashboards, no noise—just a clean, distraction-free collaboration space.
+            Launch secure WebRTC rooms in seconds with{" "}
+            <span className="text-blue-600 font-semibold">
+              studio-grade quality
+            </span>
+            . No dashboards, no noise—just a clean, distraction-free
+            collaboration space.
           </motion.p>
 
           {/* Actions */}
@@ -92,15 +101,19 @@ export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: He
           >
             <button
               onClick={() => openModal("create")}
-              className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 rounded-lg bg-white text-black px-8 py-3 text-sm font-semibold shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 transition-all duration-300"
+              className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 text-white px-8 py-3 text-sm font-semibold shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 hover:bg-blue-700 transition-all duration-300"
             >
               <span>Start Instant Room</span>
-              <Icon name="arrow" size={16} className="group-hover:translate-x-1 transition-transform" />
+              <Icon
+                name="arrow"
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </button>
 
             <button
               onClick={() => openModal("join")}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-8 py-3 text-sm font-semibold text-white hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-8 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
             >
               Join Existing Room
             </button>
@@ -111,24 +124,24 @@ export default function Hero({ roomId, setRoomId, onCreateRoom, onJoinRoom }: He
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.2 }}
-            className="relative mt-16 rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl shadow-blue-900/20 backdrop-blur-sm"
+            className="relative mt-16 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl shadow-blue-500/10 backdrop-blur-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10 rounded-xl" />
-            <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-900/50 relative">
-               {/* Abstract UI representation */}
-               <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-4 w-3/4 h-3/4 opacity-30">
-                      <div className="bg-blue-500/20 rounded-lg animate-pulse" />
-                      <div className="bg-blue-400/20 rounded-lg animate-pulse delay-75" />
-                      <div className="bg-blue-600/20 rounded-lg animate-pulse delay-150" />
-                      <div className="bg-blue-300/20 rounded-lg animate-pulse delay-100" />
-                  </div>
-               </div>
-               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                  <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/10" />
-                  <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/10" />
-                  <div className="w-8 h-8 rounded-full bg-red-500/80 backdrop-blur-md border border-red-500/20" />
-               </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/5 to-transparent z-10 rounded-xl" />
+            <div className="aspect-video w-full overflow-hidden rounded-xl bg-gray-50 relative">
+              {/* Abstract UI representation */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="grid grid-cols-2 gap-4 w-3/4 h-3/4 opacity-30">
+                  <div className="bg-blue-200 rounded-lg animate-pulse" />
+                  <div className="bg-blue-100 rounded-lg animate-pulse delay-75" />
+                  <div className="bg-blue-300 rounded-lg animate-pulse delay-150" />
+                  <div className="bg-blue-100 rounded-lg animate-pulse delay-100" />
+                </div>
+              </div>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                <div className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/20 shadow-sm" />
+                <div className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-md border border-white/20 shadow-sm" />
+                <div className="w-8 h-8 rounded-full bg-red-500/80 backdrop-blur-md border border-red-500/20 shadow-sm" />
+              </div>
             </div>
           </motion.div>
         </div>

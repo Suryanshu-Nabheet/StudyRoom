@@ -3,7 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { Navbar, Hero, Features, Footer, Background } from "./components";
+import {
+  Navbar,
+  Hero,
+  Features,
+  Footer,
+  Background,
+  DeveloperSection,
+} from "./components";
 
 function LandingContent() {
   const router = useRouter();
@@ -36,7 +43,7 @@ function LandingContent() {
     <>
       <Background />
       <Navbar />
-      <main className="relative min-h-screen text-white pt-20">
+      <main className="relative min-h-screen text-gray-900 pt-20">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-20">
           <Hero
             roomId={roomId}
@@ -45,6 +52,7 @@ function LandingContent() {
             onJoinRoom={joinRoom}
           />
           <Features />
+          <DeveloperSection />
           <Footer />
         </div>
       </main>
@@ -60,7 +68,10 @@ function LandingSkeleton() {
         <div className="h-[400px] bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-3xl" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="h-64 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-2xl" />
+            <div
+              key={idx}
+              className="h-64 bg-gradient-to-br from-blue-500/5 to-blue-600/5 rounded-2xl"
+            />
           ))}
         </div>
       </div>

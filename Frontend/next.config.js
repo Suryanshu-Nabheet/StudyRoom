@@ -6,6 +6,14 @@ const nextConfig = {
   compress: true,
   // Performance optimizations
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'github.com',
+      },
+    ],
+  },
   // Security headers
   async headers() {
     return [

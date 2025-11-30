@@ -31,9 +31,12 @@ export const toast = {
       }, duration);
     }
   },
-  success: (message: string, duration?: number) => toast.show(message, "success", duration),
-  error: (message: string, duration?: number) => toast.show(message, "error", duration),
-  info: (message: string, duration?: number) => toast.show(message, "info", duration),
+  success: (message: string, duration?: number) =>
+    toast.show(message, "success", duration),
+  error: (message: string, duration?: number) =>
+    toast.show(message, "error", duration),
+  info: (message: string, duration?: number) =>
+    toast.show(message, "info", duration),
 };
 
 export function ToastContainer() {
@@ -62,10 +65,10 @@ export function ToastContainer() {
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             className={`px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm border ${
               toast.type === "success"
-                ? "bg-green-500/10 border-green-500/30 text-green-400"
+                ? "bg-green-50 border-green-200 text-green-700"
                 : toast.type === "error"
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
-                : "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                ? "bg-red-50 border-red-200 text-red-700"
+                : "bg-blue-50 border-blue-200 text-blue-700"
             }`}
           >
             <p className="text-sm font-medium">{toast.message}</p>
@@ -75,4 +78,3 @@ export function ToastContainer() {
     </div>
   );
 }
-

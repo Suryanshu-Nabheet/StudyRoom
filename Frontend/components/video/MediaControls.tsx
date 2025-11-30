@@ -50,9 +50,19 @@ const MediaControls = memo(function MediaControls({
     },
   ];
 
-  const sidebarButtons: { id: string; icon: string; label: string; tab: SidebarTab }[] = [
+  const sidebarButtons: {
+    id: string;
+    icon: string;
+    label: string;
+    tab: SidebarTab;
+  }[] = [
     { id: "chat", icon: "chat", label: "Chat", tab: "chat" },
-    { id: "participants", icon: "users", label: "Participants", tab: "participants" },
+    {
+      id: "participants",
+      icon: "users",
+      label: "Participants",
+      tab: "participants",
+    },
     { id: "details", icon: "settings", label: "Settings", tab: "details" },
   ];
 
@@ -65,10 +75,10 @@ const MediaControls = memo(function MediaControls({
     <div className="pointer-events-none fixed bottom-0 inset-x-0 flex flex-col items-center justify-end z-40 pb-2 sm:pb-4 md:pb-6 px-2 sm:px-4">
       {/* Compact fixed width container */}
       <div className="pointer-events-auto w-full max-w-full sm:max-w-xl">
-        <div className="relative rounded-xl sm:rounded-2xl border border-white/20 bg-black/70 sm:bg-black/60 backdrop-blur-2xl shadow-2xl shadow-black/80 overflow-hidden">
+        <div className="relative rounded-xl sm:rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-2xl shadow-xl shadow-blue-900/5 overflow-hidden">
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
-          
+
           {/* Main controls container - fully responsive */}
           <div className="relative z-10 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-3">
             {/* Left: Media Controls */}
@@ -79,14 +89,18 @@ const MediaControls = memo(function MediaControls({
                   onClick={control.onClick}
                   className={`relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 touch-manipulation ${
                     control.active
-                      ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
-                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 active:bg-white/15"
+                      ? "bg-blue-50 border border-blue-200 text-blue-600 shadow-sm"
+                      : "bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-200 active:bg-gray-300"
                   }`}
                   aria-pressed={control.active}
                   aria-label={control.label}
                   title={control.label}
                 >
-                  <Icon name={control.icon} size={18} className="sm:w-5 sm:h-5 relative z-10" />
+                  <Icon
+                    name={control.icon}
+                    size={18}
+                    className="sm:w-5 sm:h-5 relative z-10"
+                  />
                   <span className="sr-only">{control.label}</span>
                 </button>
               ))}
@@ -99,7 +113,11 @@ const MediaControls = memo(function MediaControls({
               aria-label="Leave meeting"
               title="Leave meeting"
             >
-              <Icon name="power" size={16} className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:scale-110" />
+              <Icon
+                name="power"
+                size={16}
+                className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:scale-110"
+              />
               <span className="hidden xs:inline sm:inline">End</span>
             </button>
 
@@ -110,14 +128,19 @@ const MediaControls = memo(function MediaControls({
                   key={button.id}
                   onClick={() => handleSidebar(button.tab)}
                   className={`relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200 touch-manipulation ${
-                    sidebarVisible && button.tab === useRoomStore.getState().sidebarTab
-                      ? "bg-white/15 border border-white/30 text-white shadow-lg shadow-white/5"
-                      : "bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 active:bg-white/15"
+                    sidebarVisible &&
+                    button.tab === useRoomStore.getState().sidebarTab
+                      ? "bg-blue-50 border border-blue-200 text-blue-600 shadow-sm"
+                      : "bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-200 active:bg-gray-300"
                   }`}
                   aria-label={button.label}
                   title={button.label}
                 >
-                  <Icon name={button.icon} size={16} className="sm:w-[18px] sm:h-[18px] relative z-10" />
+                  <Icon
+                    name={button.icon}
+                    size={16}
+                    className="sm:w-[18px] sm:h-[18px] relative z-10"
+                  />
                   <span className="sr-only">{button.label}</span>
                 </button>
               ))}
@@ -125,36 +148,43 @@ const MediaControls = memo(function MediaControls({
           </div>
 
           {/* Bottom: Compact Network Stats - hidden on mobile */}
-          <div className="relative z-10 px-2 sm:px-4 py-1 sm:py-1.5 border-t border-white/10 bg-black/40 hidden md:block">
+          <div className="relative z-10 px-2 sm:px-4 py-1 sm:py-1.5 border-t border-gray-200 bg-gray-50 hidden md:block">
             <div className="flex items-center justify-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-medium tracking-wide">
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <Icon name="activity" size={10} className="text-blue-400" />
-                <span className="text-gray-400">Bitrate:</span>
-                <span className="text-white font-mono">
+                <Icon name="activity" size={10} className="text-blue-500" />
+                <span className="text-gray-500">Bitrate:</span>
+                <span className="text-gray-900 font-mono">
                   {networkStats.bitrate ? `${networkStats.bitrate} kbps` : "—"}
                 </span>
               </div>
-              
-              <div className="h-2.5 sm:h-3 w-px bg-white/10"></div>
-              
+
+              <div className="h-2.5 sm:h-3 w-px bg-gray-300"></div>
+
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <Icon name="zap" size={10} className="text-green-400" />
-                <span className="text-gray-400">RTT:</span>
-                <span className={`font-mono ${
-                  networkStats.rtt && networkStats.rtt < 100 ? 'text-green-400' : 
-                  networkStats.rtt && networkStats.rtt < 200 ? 'text-yellow-400' : 'text-red-400'
-                }`}>
+                <Icon name="zap" size={10} className="text-green-500" />
+                <span className="text-gray-500">RTT:</span>
+                <span
+                  className={`font-mono ${
+                    networkStats.rtt && networkStats.rtt < 100
+                      ? "text-green-600"
+                      : networkStats.rtt && networkStats.rtt < 200
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}
+                >
                   {networkStats.rtt ? `${networkStats.rtt} ms` : "—"}
                 </span>
               </div>
-              
-              <div className="h-2.5 sm:h-3 w-px bg-white/10"></div>
-              
+
+              <div className="h-2.5 sm:h-3 w-px bg-gray-300"></div>
+
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <Icon name="wifi" size={10} className="text-purple-400" />
-                <span className="text-gray-400">Jitter:</span>
-                <span className="text-white font-mono">
-                  {networkStats.jitter ? `${(networkStats.jitter * 1000).toFixed(1)} ms` : "—"}
+                <Icon name="wifi" size={10} className="text-purple-500" />
+                <span className="text-gray-500">Jitter:</span>
+                <span className="text-gray-900 font-mono">
+                  {networkStats.jitter
+                    ? `${(networkStats.jitter * 1000).toFixed(1)} ms`
+                    : "—"}
                 </span>
               </div>
             </div>
