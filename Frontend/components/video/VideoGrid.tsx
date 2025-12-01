@@ -68,7 +68,6 @@ export default function VideoGrid({
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
   const displayStream = previewStream || localStream;
 
   // Detect mobile device
@@ -165,17 +164,9 @@ export default function VideoGrid({
       >
         {/* Local video */}
         {displayStream && (
-          <div
-            className="video-tile-wrapper group"
-            onMouseEnter={() => setHoveredVideo("local")}
-            onMouseLeave={() => setHoveredVideo(null)}
-          >
+          <div className="video-tile-wrapper group">
             <div
-              className={`relative h-full rounded-md sm:rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
-                hoveredVideo === "local"
-                  ? "border-blue-500 shadow-lg shadow-blue-500/20"
-                  : "border-gray-200 shadow-sm"
-              }`}
+              className={`relative h-full rounded-md sm:rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 border-gray-200 shadow-sm`}
             >
               {/* Video element */}
               <video
@@ -242,19 +233,6 @@ export default function VideoGrid({
                   </div>
                 </div>
               </div>
-
-              {/* Hover overlay with actions - more subtle */}
-              {hoveredVideo === "local" && (
-                <div className="absolute inset-0 bg-black/10 flex items-center justify-center transition-opacity duration-200">
-                  <button className="p-1.5 sm:p-2 bg-white hover:bg-gray-50 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg transition-all duration-150 touch-manipulation">
-                    <Icon
-                      name="maximize"
-                      size={14}
-                      className="sm:w-4 sm:h-4 text-gray-700"
-                    />
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -277,15 +255,9 @@ export default function VideoGrid({
                 key={userId}
                 className="video-tile-wrapper group animate-in fade-in slide-in-from-bottom-4"
                 style={{ animationDelay: `${index * 80}ms` }}
-                onMouseEnter={() => setHoveredVideo(userId)}
-                onMouseLeave={() => setHoveredVideo(null)}
               >
                 <div
-                  className={`relative h-full rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 ${
-                    hoveredVideo === userId
-                      ? "border-green-500 shadow-lg shadow-green-500/20"
-                      : "border-gray-200 shadow-sm"
-                  }`}
+                  className={`relative h-full rounded-lg lg:rounded-xl overflow-hidden border transition-all duration-200 border-gray-200 shadow-sm`}
                 >
                   {/* Video element */}
                   <video
@@ -362,22 +334,6 @@ export default function VideoGrid({
                       </div>
                     </div>
                   </div>
-
-                  {/* Hover overlay with actions - more subtle */}
-                  {hoveredVideo === userId && (
-                    <div className="absolute inset-0 bg-black/10 flex items-center justify-center gap-2 transition-opacity duration-200">
-                      <button className="p-2 bg-white hover:bg-gray-50 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg transition-all duration-150">
-                        <Icon
-                          name="maximize"
-                          size={16}
-                          className="text-gray-700"
-                        />
-                      </button>
-                      <button className="p-2 bg-white hover:bg-gray-50 backdrop-blur-md rounded-lg border border-gray-200 shadow-lg transition-all duration-150">
-                        <Icon name="pin" size={16} className="text-gray-700" />
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             );

@@ -5,7 +5,6 @@ export interface RoomMetadata {
   title: string | null;
   createdAt: Date;
   hostId: string;
-  locked?: boolean;
 }
 
 export interface UserData {
@@ -16,7 +15,6 @@ export interface UserData {
 export class SocketServer {
   private io: Server;
   private rooms: Map<string, Set<string>> = new Map(); // roomId -> Set of socketIds
-  private waitingParticipants: Map<string, Array<{ userId: string; username: string; joinedAt: Date }>> = new Map(); // roomId -> waiting list
   private users: Map<string, UserData> = new Map(); // socketId -> { roomId, username }
   private roomMetadata: Map<string, RoomMetadata> = new Map(); // roomId -> { title, createdAt, hostId }
 
@@ -103,30 +101,11 @@ export class SocketServer {
           title: meetingTitle || null,
           createdAt: new Date(),
           hostId: socket.id,
-          locked: false,
         });
         console.log(`🏠 Room ${roomId} created. Host: ${socket.id} (${username})`);
       }
 
       const meta = this.roomMetadata.get(roomId);
-      
-      // If meeting is locked and this user is not the host, put them in waiting room
-      if (meta?.locked && meta.hostId !== socket.id) {
-        console.log(`🔒 Meeting locked. User ${socket.id} (${username}) placed in waiting room.`);
-        const waitingList = this.waitingParticipants.get(roomId) || [];
-        // Check if already in waiting list to avoid duplicates
-        if (!waitingList.some(p => p.userId === socket.id)) {
-          waitingList.push({ userId: socket.id, username, joinedAt: new Date() });
-          this.waitingParticipants.set(roomId, waitingList);
-        }
-        
-        // Notify host about waiting participants
-        if (meta.hostId) {
-          this.io.to(meta.hostId).emit('waiting-room-update', waitingList);
-        }
-        socket.emit('waiting-room', { message: 'The meeting is locked. You are in the waiting room.' });
-        return; // CRITICAL: Return here so they don't join the room!
-      }
 
       socket.join(roomId);
 

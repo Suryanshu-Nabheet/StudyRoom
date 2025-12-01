@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Icon from "@/components/ui/Icon";
 import ChatPanel from "@/components/chat/ChatPanel";
-import AdminPanel from "@/components/admin/AdminPanel";
 import ConnectionStatus from "@/components/ui/ConnectionStatus";
 import { useRoomStore, SidebarTab } from "@/store/roomStore";
 import { getSocket } from "@/lib/socket";
@@ -52,9 +51,6 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
   const tabs: { id: SidebarTab; label: string; icon: string }[] = [
     { id: "chat", label: "Chat", icon: "chat" },
     { id: "participants", label: "Participants", icon: "users" },
-    ...(isHost
-      ? [{ id: "admin" as SidebarTab, label: "Admin", icon: "crown" }]
-      : []),
     { id: "details", label: "Details", icon: "network" },
   ];
 
@@ -81,7 +77,6 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
           <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
           {sidebarTab === "chat" && "Chat"}
           {sidebarTab === "participants" && "Participants"}
-          {sidebarTab === "admin" && "Admin"}
           {sidebarTab === "details" && "Details"}
         </h2>
         {compact && (
@@ -152,7 +147,7 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-lg">
-                    {userName.slice(0, 2).toUpperCase()}
+                    {(userName || "You").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
@@ -179,7 +174,7 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
             <div className="space-y-2">
               {Array.from(participants.entries())
                 .filter(([id]) => id !== mySocketId)
-                .map(([id, name], index) => (
+                .map(([id, userInfo], index) => (
                   <motion.div
                     key={id}
                     initial={{ opacity: 0, y: 10 }}
@@ -191,13 +186,13 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
                       <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                         <div className="relative">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-lg">
-                            {name.slice(0, 2).toUpperCase()}
+                            {userInfo.username.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
-                            {name}
+                            {userInfo.username}
                           </p>
                           <p className="text-[10px] text-gray-500 truncate">
                             {id.slice(0, 6)}
@@ -219,7 +214,7 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
             </div>
           </div>
         )}
-        {sidebarTab === "admin" && <AdminPanel />}
+
         {sidebarTab === "details" && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -235,7 +230,7 @@ export default function Sidebar({ compact = false, onClose }: SidebarProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Room ID:</span>
                   <span className="text-gray-900 font-mono text-[10px]">
-                    {roomId.slice(0, 8)}...
+                    {(roomId || "Unknown").slice(0, 8)}...
                   </span>
                 </div>
                 <div className="flex justify-between">

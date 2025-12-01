@@ -16,7 +16,7 @@ const featureCards = [
     icon: "chat",
     title: "Live Collaboration",
     detail:
-      "Realtime chat, host controls, and screen share baked into a single minimalist surface.",
+      "Realtime chat and screen share baked into a single minimalist surface.",
     gradient: "from-blue-600/10 to-blue-700/5",
     iconBg: "from-blue-600/20 to-blue-700/20",
   },
