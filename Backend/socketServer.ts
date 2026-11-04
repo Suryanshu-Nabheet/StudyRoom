@@ -38,19 +38,19 @@ export class SocketServer {
         connectTimeout: 20000, // Faster timeout for quicker connection
       });
 
-      console.log(`✅ Socket.io signaling server running on port ${portOrIo}`);
+      console.log(`Socket.io signaling server running on port ${portOrIo}`);
     } else {
       // Integrated mode - use provided Server instance
       this.io = portOrIo;
-      console.log(`✅ Socket.io integrated with Next.js server`);
+      console.log(`Socket.io integrated with Next.js server`);
     }
 
     this.setupEventHandlers();
     
     if (env.NODE_ENV === "production") {
-      console.log(`🌐 Production mode: CORS origins => ${env.ALLOWED_ORIGINS.join(", ")}`);
+      console.log(`Production mode: CORS origins => ${env.ALLOWED_ORIGINS.join(", ")}`);
     } else {
-      console.log(`🔧 Development mode: CORS enabled for all origins`);
+      console.log(`Development mode: CORS enabled for all origins`);
     }
   }
 
@@ -102,7 +102,7 @@ export class SocketServer {
           createdAt: new Date(),
           hostId: socket.id,
         });
-        console.log(`🏠 Room ${roomId} created. Host: ${socket.id} (${username})`);
+        console.log(`Room ${roomId} created. Host: ${socket.id} (${username})`);
       }
 
       const meta = this.roomMetadata.get(roomId);
@@ -206,7 +206,7 @@ export class SocketServer {
         return;
       }
 
-      console.log(`🚫 Host ${socket.id} removing participant ${targetSocketId} from room ${userData.roomId}`);
+      console.log(`Host ${socket.id} removing participant ${targetSocketId} from room ${userData.roomId}`);
 
       // Notify the target user they've been removed
       this.io.to(targetSocketId).emit("participant-removed", {
@@ -241,7 +241,7 @@ export class SocketServer {
         return;
       }
 
-      console.log(`🏁 Host ${socket.id} ended meeting in room ${userData.roomId}`);
+      console.log(`Host ${socket.id} ended meeting in room ${userData.roomId}`);
 
       // Notify all participants that meeting ended
       this.io.to(userData.roomId).emit("meeting-ended", {
@@ -279,7 +279,7 @@ export class SocketServer {
 
       if (isHost) {
         // Host left - end meeting for all participants
-        console.log(`🏠 Host ${socket.id} left room ${roomId}. Ending meeting for all participants.`);
+        console.log(`Host ${socket.id} left room ${roomId}. Ending meeting for all participants.`);
         const room = this.rooms.get(roomId);
         if (room) {
           // Notify all participants that meeting ended

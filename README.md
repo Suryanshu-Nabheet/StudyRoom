@@ -6,33 +6,33 @@ StudyRoom is a production-ready platform for **live study sessions, classrooms, 
 
 ---
 
-## ✨ Highlights
+## Highlights
 
-- **🎥 High-quality video & audio** – WebRTC + Simple-Peer with fine-tuned connection settings
-- **💬 Interactive rooms** – Live video grid, real-time chat, and presence in a unified experience
-- **👑 Host controls** – End meeting for everyone, remove participants, and manage room state
-- **📊 Real-time telemetry** – Bitrate, RTT, and jitter surfaced in the UI for quick diagnostics
-- **🚀 Deploy-ready** – Single Node service that runs both Next.js app and Socket.io signaling server
-- **🎨 Modern UI** – Beautiful glassmorphism design with smooth Framer Motion animations
-- **📱 Fully responsive** – Works seamlessly on desktop, tablet, and mobile devices
+- ** High-quality video & audio** – WebRTC + Simple-Peer with fine-tuned connection settings
+- ** Interactive rooms** – Live video grid, real-time chat, and presence in a unified experience
+- ** Host controls** – End meeting for everyone, remove participants, and manage room state
+- ** Real-time telemetry** – Bitrate, RTT, and jitter surfaced in the UI for quick diagnostics
+- ** Deploy-ready** – Single Node service that runs both Next.js app and Socket.io signaling server
+- ** Modern UI** – Beautiful glassmorphism design with smooth Framer Motion animations
+- ** Fully responsive** – Works seamlessly on desktop, tablet, and mobile devices
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 StudyRoom is organized as a clean monorepo with two workspaces and a unified runtime server:
 
 - **Frontend** – Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion
 - **Signaling backend** – Socket.io based signaling server for WebRTC (no database required)
 - **Unified server** – Custom `server.ts` entrypoint at the repo root that:
-  - Boots the Next.js application from `Frontend/`
-  - Attaches Socket.io (via `SocketServer`) to the same HTTP server and port
+ - Boots the Next.js application from `Frontend/`
+ - Attaches Socket.io (via `SocketServer`) to the same HTTP server and port
 
 This means you can deploy StudyRoom as **one Node service** (e.g., a single Render web service) while keeping the codebase cleanly separated into Frontend and Backend.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 StudyRoom/
@@ -58,7 +58,7 @@ StudyRoom/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -111,7 +111,7 @@ This uses the unified `server.ts` entrypoint and listens on `PORT` (or `3000` if
 
 ---
 
-## ⚙️ Configuration & Environment
+## Configuration & Environment
 
 Default local setup works **without any env vars**:
 
@@ -139,7 +139,7 @@ Backend configuration (`Backend/config/env.ts`) uses:
 
 ---
 
-## 🌐 Deployment (Render, Single Service)
+## Deployment (Render, Single Service)
 
 StudyRoom is optimized to run as a **single Node web service** on Render:
 
@@ -171,7 +171,7 @@ No `NEXT_PUBLIC_SOCKET_URL` is required in this setup – the client will use th
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -196,43 +196,30 @@ No `NEXT_PUBLIC_SOCKET_URL` is required in this setup – the client will use th
 
 ---
 
-## 🎯 Features
+## Features
 
 ### For Participants
 
-- ✅ Instant room creation with shareable links
-- ✅ Join rooms with a simple room ID
-- ✅ High-quality video and audio streaming
-- ✅ Real-time text chat
-- ✅ Screen sharing capabilities
-- ✅ Network quality indicators
-- ✅ Responsive design for all devices
+- Instant room creation with shareable links
+- Join rooms with a simple room ID
+- High-quality video and audio streaming
+- Real-time text chat
+- Screen sharing capabilities
+- Network quality indicators
+- Responsive design for all devices
 
 ### For Hosts
 
-- ✅ End meeting for all participants
-- ✅ Remove individual participants
-- ✅ Lock/unlock room to prevent new joins
-- ✅ Mute all participants
-- ✅ Disable cameras for all participants
-- ✅ View connection statistics
+- End meeting for all participants
+- Remove individual participants
+- Lock/unlock room to prevent new joins
+- Mute all participants
+- Disable cameras for all participants
+- View connection statistics
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] Persistent rooms and schedules (database support)
-- [ ] Authentication and user profiles
-- [ ] Recording + playback of sessions
-- [ ] Organization-level admin tools (teams, permissions, analytics)
-- [ ] Breakout rooms
-- [ ] Virtual backgrounds
-- [ ] Polls and Q&A features
-- [ ] Whiteboard integration
-
----
-
-## 👨‍💻 Author
+## Author
 
 **Suryanshu Nabheet**
 
@@ -243,29 +230,29 @@ A passionate developer focused on creating seamless real-time communication expe
 
 ---
 
-## 📄 License
+## License
 
 This project is provided as-is for learning and experimentation. If you plan to use it in production at scale, review and adapt the code, security posture, and deployment setup to your organization's requirements.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Suryanshu-Nabheet/StudyRoom/issues).
 
 ---
 
-## 📞 Support
+## Support
 
 For questions, issues, or feature requests:
 
 - Open a [GitHub issue](https://github.com/Suryanshu-Nabheet/StudyRoom/issues)
-- Star ⭐ this repository if you find it helpful!
+- Star this repository if you find it helpful!
 
 ---
 
 <div align="center">
-  <strong>Built with ❤️ by Suryanshu Nabheet</strong>
+  <strong>Built with  by Suryanshu Nabheet</strong>
   <br>
   <sub>Making remote collaboration feel personal</sub>
 </div>

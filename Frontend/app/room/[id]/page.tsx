@@ -210,7 +210,7 @@ export default function RoomPage() {
 
         // Wait for socket to connect with timeout
         if (!socket.connected) {
-          console.log("⏳ Waiting for socket connection...");
+          console.log("Waiting for socket connection...");
           let connectionResolved = false;
 
           await new Promise<void>((resolve) => {
@@ -226,7 +226,7 @@ export default function RoomPage() {
                 socket.off("connect", onConnect);
                 socket.off("connect_error", onError);
                 // Continue anyway - socket.io will reconnect in background
-                console.log("⏳ Connection in progress, continuing setup...");
+                console.log("Connection in progress, continuing setup...");
                 resolve();
               }
             }, 8000); // 8 second timeout
@@ -333,7 +333,7 @@ export default function RoomPage() {
         setIsVideoEnabled(true);
         setIsScreenSharing(false);
 
-        console.log("🎥 Media stream obtained, initializing WebRTC...");
+        console.log("Media stream obtained, initializing WebRTC...");
         // Get userName and meetingTitle for WebRTC
         const currentUserName =
           userName ||
@@ -362,10 +362,10 @@ export default function RoomPage() {
           setIsConnected(true);
           setIsLoading(false);
           setMediaError(null);
-          console.log("✅ WebRTC initialized");
+          console.log("WebRTC initialized");
         }
       } catch (error: any) {
-        console.error("❌ Error setting up media/WebRTC:", error);
+        console.error("Error setting up media/WebRTC:", error);
         if (mounted) {
           setIsLoading(false);
           if (
@@ -393,7 +393,7 @@ export default function RoomPage() {
     setupMedia();
 
     return () => {
-      console.log("🧹 Cleaning up room page");
+      console.log("Cleaning up room page");
       mounted = false;
       if (cleanup) {
         cleanup();

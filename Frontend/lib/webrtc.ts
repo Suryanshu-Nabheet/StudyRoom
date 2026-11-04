@@ -44,7 +44,7 @@ export const initWebRTC = async (
           socket.off("connect_error", onError);
           // Don't reject - let socket.io handle reconnection
           // Just resolve with a promise that will wait for actual connection
-          console.log("⏳ Connection taking longer than expected, continuing in background...");
+          console.log("Connection taking longer than expected, continuing in background...");
           // Wait a bit more, then check if connected
           setTimeout(() => {
             if (socket.connected && socket.id) {
@@ -86,9 +86,9 @@ export const initWebRTC = async (
   try {
     const connectedSocketId = await waitForConnection();
     mySocketId = connectedSocketId;
-    console.log("🔌 Socket connected, ID:", mySocketId);
+    console.log("Socket connected, ID:", mySocketId);
   } catch (error) {
-    console.error("❌ Failed to connect socket:", error);
+    console.error("Failed to connect socket:", error);
     throw error;
   }
 
@@ -118,7 +118,7 @@ export const initWebRTC = async (
 
     // Don't process if peer is already connected
     if (peerData.peer.connected) {
-      console.log(`ℹ️ Peer ${userId} already connected, clearing signal queue`);
+      console.log(`Peer ${userId} already connected, clearing signal queue`);
       peerData.signalQueue = [];
       peers.set(userId, { ...peerData });
       setPeers(new Map(peers));
@@ -135,12 +135,12 @@ export const initWebRTC = async (
     if (signal && !peerData.peer.destroyed && !isCleaningUp) {
       try {
         peerData.peer.signal(signal);
-        console.log(`✅ Processed queued ${signal.type} signal for ${userId}`);
+        console.log(`Processed queued ${signal.type} signal for ${userId}`);
       } catch (error: any) {
-        console.error(`❌ Error processing queued signal for ${userId}:`, error);
+        console.error(`Error processing queued signal for ${userId}:`, error);
         // If state error, don't retry - just skip
         if (error.message?.includes("state") || error.message?.includes("stable")) {
-          console.log(`⏸️ Skipping queued signal due to state error for ${userId}`);
+          console.log(`Skipping queued signal due to state error for ${userId}`);
         }
       }
     }
@@ -170,8 +170,7 @@ export const initWebRTC = async (
       removePeer(userId);
     }
 
-    console.log(
-      `🔗 Creating peer for ${userId} as ${initiator ? "INITIATOR" : "ANSWERER"}`
+    console.log(`Creating peer for ${userId} as ${initiator ? "INITIATOR" : "ANSWERER"}`
     );
 
     // Enhanced ICE server configuration with multiple STUN servers
@@ -207,7 +206,7 @@ export const initWebRTC = async (
 
     peer.on("signal", (signal) => {
       if (peer.destroyed || !socket.connected || !mySocketId || isCleaningUp) {
-        console.warn(`⚠️ Cannot send ${signal.type} signal to ${userId}:`, {
+        console.warn(`Cannot send ${signal.type} signal to ${userId}:`, {
           peerDestroyed: peer.destroyed,
           socketConnected: socket.connected,
           mySocketId: mySocketId,
@@ -215,7 +214,7 @@ export const initWebRTC = async (
         });
         return;
       }
-      console.log(`📤 Sending ${signal.type} signal to ${userId}`, signal.type === "offer" ? "(INITIATOR)" : signal.type === "answer" ? "(ANSWERER)" : "");
+      console.log(`Sending ${signal.type} signal to ${userId}`, signal.type === "offer" ? "(INITIATOR)" : signal.type === "answer" ? "(ANSWERER)" : "");
       socket.emit("signal", { to: userId, signal, from: mySocketId });
     });
 
@@ -223,7 +222,7 @@ export const initWebRTC = async (
       if (peer.destroyed || !userId || isCleaningUp) {
         return;
       }
-      console.log("✅ Received stream from", userId, "- Video tracks:", remoteStream.getVideoTracks().length, "Audio tracks:", remoteStream.getAudioTracks().length);
+      console.log("Received stream from", userId, "- Video tracks:", remoteStream.getVideoTracks().length, "Audio tracks:", remoteStream.getAudioTracks().length);
       const peerData = peers.get(userId);
       if (peerData) {
         // Update with remote stream, preserve processing state and queue
@@ -235,19 +234,19 @@ export const initWebRTC = async (
           signalQueue: peerData.signalQueue,
         });
         setPeers(new Map(peers));
-        console.log("📹 Stream updated in peers map for", userId);
+        console.log("Stream updated in peers map for", userId);
       } else {
-        console.warn("⚠️ No peer data found for", userId, "when stream received");
+        console.warn("No peer data found for", userId, "when stream received");
       }
     });
 
     peer.on("error", (err) => {
-      console.error("❌ Peer error for", userId, ":", err);
+      console.error("Peer error for", userId, ":", err);
       // Try to recreate peer on error (with delay to avoid loops)
       if (!isCleaningUp && userId) {
         setTimeout(() => {
           if (!isCleaningUp && !peers.has(userId)) {
-            console.log("🔄 Attempting to recreate peer after error:", userId);
+            console.log("Attempting to recreate peer after error:", userId);
             createPeer(userId, initiator);
           }
         }, 2000);
@@ -255,15 +254,15 @@ export const initWebRTC = async (
     });
 
     peer.on("close", () => {
-      console.log("🔌 Peer closed for", userId);
+      console.log("Peer closed for", userId);
       removePeer(userId);
     });
 
     peer.on("connect", () => {
-      console.log("✅ Peer connected for", userId);
+      console.log("Peer connected for", userId);
       // Verify connection is working
       if (peer.connected) {
-        console.log("🔗 Peer connection verified for", userId);
+        console.log("Peer connection verified for", userId);
       }
       if (userId) {
         startStatsMonitor(peer, userId);
@@ -342,14 +341,14 @@ export const initWebRTC = async (
     }
     if (metadata.isHost !== undefined) {
       store.setIsHost(metadata.isHost);
-      console.log(metadata.isHost ? "🏠 You are the host" : "👤 You are a participant");
+      console.log(metadata.isHost ? "You are the host" : "You are a participant");
     }
   });
 
   // When joining, new user creates peers as initiators for all existing users
   socket.on("room-users", (users: Array<{ id: string; username: string; isHost?: boolean }>) => {
     if (isCleaningUp) return;
-    console.log("📋 Room users received:", users.length, "users");
+    console.log("Room users received:", users.length, "users");
     
     // Update participants store with host info
     if (typeof window !== "undefined") {
@@ -378,7 +377,7 @@ export const initWebRTC = async (
             user.id !== mySocketId &&
             !peers.has(user.id)
           ) {
-            console.log("🔗 Creating peer as INITIATOR for existing user:", user.id);
+            console.log("Creating peer as INITIATOR for existing user:", user.id);
             createPeer(user.id, true);
           }
         });
@@ -389,7 +388,7 @@ export const initWebRTC = async (
   // When a new user joins, existing users create peer as answerer
   socket.on("user-joined", (userData: { id: string; username: string; isHost?: boolean }) => {
     if (isCleaningUp) return;
-    console.log("👤 User joined:", userData.id, userData.username, userData.isHost ? "(Host)" : "");
+    console.log("User joined:", userData.id, userData.username, userData.isHost ? "(Host)" : "");
     
     // Show toast notification
     if (typeof window !== "undefined" && userData.username) {
@@ -404,7 +403,7 @@ export const initWebRTC = async (
     
     const userId = userData?.id;
     if (userId && userId !== mySocketId && !peers.has(userId)) {
-      console.log("🔗 Creating peer as ANSWERER for new user:", userId);
+      console.log("Creating peer as ANSWERER for new user:", userId);
       setTimeout(() => {
         if (!isCleaningUp && !peers.has(userId)) {
           createPeer(userId, false);
@@ -416,7 +415,7 @@ export const initWebRTC = async (
   // When user leaves
   socket.on("user-left", (userId: string | null | undefined) => {
     if (isCleaningUp) return;
-    console.log("👋 User left:", userId);
+    console.log("User left:", userId);
     
     // Get username before removing
     let username = "Someone";
@@ -446,13 +445,13 @@ export const initWebRTC = async (
       return;
     }
 
-    console.log(`📥 Received ${signal.type} signal from ${from}`);
+    console.log(`Received ${signal.type} signal from ${from}`);
     let peerData = peers.get(from);
 
     if (peerData) {
       // Peer exists
       if (peerData.peer.destroyed) {
-        console.log("🔄 Peer destroyed, recreating for", from);
+        console.log("Peer destroyed, recreating for", from);
         removePeer(from);
         const isInitiator = signal.type !== "offer";
         const newPeer = createPeer(from, isInitiator);
@@ -463,9 +462,9 @@ export const initWebRTC = async (
             if (newPeerData && !newPeerData.peer.destroyed && !isCleaningUp) {
               try {
                 newPeerData.peer.signal(signal);
-                console.log(`✅ Applied ${signal.type} signal to recreated peer:`, from);
+                console.log(`Applied ${signal.type} signal to recreated peer:`, from);
               } catch (e) {
-                console.error("❌ Error signaling recreated peer:", e);
+                console.error("Error signaling recreated peer:", e);
                 // Queue signal for later processing
                 if (newPeerData) {
                   newPeerData.signalQueue.push(signal);
@@ -479,13 +478,13 @@ export const initWebRTC = async (
         // Check if peer is already connected or in wrong state
         // Don't process signals if peer is already connected
         if (peerData.peer.connected) {
-          console.log(`ℹ️ Peer ${from} already connected, ignoring ${signal.type} signal`);
+          console.log(`Peer ${from} already connected, ignoring ${signal.type} signal`);
           return;
         }
 
         // Check if peer is currently processing a signal
         if (peerData.isProcessing) {
-          console.log(`⏳ Peer ${from} is processing, queuing ${signal.type} signal`);
+          console.log(`Peer ${from} is processing, queuing ${signal.type} signal`);
           peerData.signalQueue.push(signal);
           peers.set(from, { ...peerData });
           setPeers(new Map(peers));
@@ -499,7 +498,7 @@ export const initWebRTC = async (
           setPeers(new Map(peers));
           
           peerData.peer.signal(signal);
-          console.log(`✅ Applied ${signal.type} signal to peer:`, from);
+          console.log(`Applied ${signal.type} signal to peer:`, from);
           
           peerData.isProcessing = false;
           peers.set(from, { ...peerData });
@@ -513,7 +512,7 @@ export const initWebRTC = async (
           peerData.isProcessing = false;
           peers.set(from, { ...peerData });
           setPeers(new Map(peers));
-          console.error("❌ Error signaling peer:", error);
+          console.error("Error signaling peer:", error);
           
           // If state error, queue the signal and wait
           if (
@@ -522,7 +521,7 @@ export const initWebRTC = async (
             error.message?.includes("destroyed") ||
             error.message?.includes("InvalidStateError")
           ) {
-            console.log(`⏸️ Peer ${from} in wrong state, queuing ${signal.type} signal`);
+            console.log(`Peer ${from} in wrong state, queuing ${signal.type} signal`);
             peerData.signalQueue.push(signal);
             peers.set(from, { ...peerData });
             setPeers(new Map(peers));
@@ -530,7 +529,7 @@ export const initWebRTC = async (
             setTimeout(() => processSignalQueue(from), 1000);
           } else {
             // For other errors, try recreating peer
-            console.log("🔄 Recreating peer due to error");
+            console.log("Recreating peer due to error");
             removePeer(from);
             const isInitiator = signal.type !== "offer";
             const newPeer = createPeer(from, isInitiator);
@@ -563,8 +562,7 @@ export const initWebRTC = async (
     } else {
       // No peer exists - create one based on signal type
       const isInitiator = signal.type !== "offer";
-      console.log(
-        `📡 Creating new peer as ${isInitiator ? "INITIATOR" : "ANSWERER"} for ${from}`
+      console.log(`Creating new peer as ${isInitiator ? "INITIATOR" : "ANSWERER"} for ${from}`
       );
       const peer = createPeer(from, isInitiator);
       if (peer) {
@@ -577,7 +575,7 @@ export const initWebRTC = async (
               peers.set(from, { ...newPeerData });
               setPeers(new Map(peers));
               newPeerData.peer.signal(signal);
-              console.log(`✅ Applied ${signal.type} signal to new peer:`, from);
+              console.log(`Applied ${signal.type} signal to new peer:`, from);
               newPeerData.isProcessing = false;
               peers.set(from, { ...newPeerData });
               setPeers(new Map(peers));
@@ -585,7 +583,7 @@ export const initWebRTC = async (
               newPeerData.isProcessing = false;
               peers.set(from, { ...newPeerData });
               setPeers(new Map(peers));
-              console.error("❌ Error signaling new peer:", error);
+              console.error("Error signaling new peer:", error);
               // Queue signal for later
               newPeerData.signalQueue.push(signal);
               peers.set(from, { ...newPeerData });
@@ -601,7 +599,7 @@ export const initWebRTC = async (
   // Listen for meeting ended event
   socket.on("meeting-ended", (data: { message: string }) => {
     if (isCleaningUp) return;
-    console.log("🏁 Meeting ended:", data.message);
+    console.log("Meeting ended:", data.message);
     if (typeof window !== "undefined") {
       const store = useRoomStore.getState();
       store.setMeetingEnded(true);
@@ -611,7 +609,7 @@ export const initWebRTC = async (
   // Listen for participant removed event
   socket.on("participant-removed", (data: { message: string }) => {
     if (isCleaningUp) return;
-    console.log("🚫 You have been removed from the meeting");
+    console.log("You have been removed from the meeting");
     if (typeof window !== "undefined") {
       const store = useRoomStore.getState();
       store.setMeetingEnded(true);
@@ -621,7 +619,7 @@ export const initWebRTC = async (
 
   // NOW join the room after all listeners are set up
   if (mySocketId) {
-    console.log("🚪 Joining room:", roomId, "with socket ID:", mySocketId);
+    console.log("Joining room:", roomId, "with socket ID:", mySocketId);
     const displayName = userName || `User-${mySocketId.slice(0, 6)}`;
     // Check if already joined
     const hasJoined = typeof window !== "undefined" && sessionStorage.getItem(`hasJoinedRoom_${roomId}`);
@@ -640,13 +638,13 @@ export const initWebRTC = async (
           if (typeof window !== "undefined") {
             sessionStorage.setItem(`hasJoinedRoom_${roomId}`, "true");
           }
-          console.log("✅ Join-room emitted for room:", roomId);
+          console.log("Join-room emitted for room:", roomId);
         } else {
-          console.warn("⚠️ Socket not connected, cannot join room");
+          console.warn("Socket not connected, cannot join room");
         }
       }, 200); // Increased delay to ensure all listeners are registered
     } else {
-      console.log("ℹ️ Already joined room, skipping join-room emit");
+      console.log("Already joined room, skipping join-room emit");
     }
   } else {
     throw new Error("Socket not connected");
@@ -654,7 +652,7 @@ export const initWebRTC = async (
 
   // Cleanup
   return () => {
-    console.log("🧹 Cleaning up WebRTC");
+    console.log("Cleaning up WebRTC");
     isCleaningUp = true;
     statsIntervals.forEach((intervalId) => clearInterval(intervalId));
     statsIntervals.clear();

@@ -10,7 +10,6 @@ import {
   Features,
   Footer,
   Background,
-  DeveloperSection,
 } from "./components";
 
 function LandingContent() {
@@ -64,7 +63,6 @@ function LandingContent() {
               onJoinRoom={joinRoom}
             />
             <Features />
-            <DeveloperSection />
             <Footer />
           </motion.div>
         </main>

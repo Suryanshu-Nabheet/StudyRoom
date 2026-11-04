@@ -44,13 +44,13 @@ app
     new SocketServer(io);
 
     server.listen(port, () => {
-      console.log(`🚀 Next.js + Socket.io server ready on port ${port}`);
+      console.log(`Next.js + Socket.io server ready on port ${port}`);
       if (backendEnv.ALLOWED_ORIGINS?.length) {
-        console.log("🌐 Allowed origins:", backendEnv.ALLOWED_ORIGINS.join(", "));
+        console.log("Allowed origins:", backendEnv.ALLOWED_ORIGINS.join(", "));
       }
     });
   })
   .catch((err) => {
-    console.error("❌ Error starting server:", err);
+    console.error("Error starting server:", err);
     process.exit(1);
   });

@@ -77,15 +77,7 @@ export default function Footer() {
           </p>
 
           <div className="flex items-center gap-2 text-[10px] text-gray-400">
-            <span>Built with</span>
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
-              className="text-red-500"
-            >
-              ♥
-            </motion.span>
-            <span>By Suryanshu Nabheet</span>
+            <span>Built with care by Suryanshu Nabheet</span>
           </div>
         </div>
       </div>

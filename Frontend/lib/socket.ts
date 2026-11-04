@@ -8,7 +8,7 @@ const MAX_CONSOLE_ERRORS = 3; // Limit console spam
 export const getSocket = (): Socket => {
   if (!socket) {
     const socketUrl = env.SOCKET_URL;
-    console.log("🔌 Initializing socket connection to:", socketUrl);
+    console.log("Initializing socket connection to:", socketUrl);
     
     socket = io(socketUrl, {
       transports: ["websocket", "polling"], // Prefer websocket, fallback to polling
@@ -27,7 +27,7 @@ export const getSocket = (): Socket => {
 
     socket.on("connect", () => {
       connectionAttempts = 0; // Reset on successful connection
-      console.log("✅ Socket connected:", socket?.id);
+      console.log("Socket connected:", socket?.id);
     });
 
     socket.on("disconnect", (reason) => {
@@ -37,7 +37,7 @@ export const getSocket = (): Socket => {
       }
       // Only log important disconnects
       if (reason !== "transport close" && reason !== "ping timeout") {
-      console.log("❌ Socket disconnected:", reason);
+      console.log("Socket disconnected:", reason);
       }
     });
 
@@ -50,19 +50,19 @@ export const getSocket = (): Socket => {
         description: (error as any)?.description ?? undefined,
         url: socketUrl,
       };
-      console.error(`⚠️ Socket connection error (attempt ${connectionAttempts}):`, errInfo);
+      console.error(`Socket connection error (attempt ${connectionAttempts}):`, errInfo);
       // Limit console spam - only show first few errors
       if (connectionAttempts <= MAX_CONSOLE_ERRORS) {
-        console.warn(`⚠️ Socket connection attempt ${connectionAttempts}:`, errInfo.message);
+        console.warn(`Socket connection attempt ${connectionAttempts}:`, errInfo.message);
         if (connectionAttempts === MAX_CONSOLE_ERRORS) {
-          console.log("💡 Connection will continue retrying silently...");
+          console.log("Connection will continue retrying silently...");
         }
       }
     });
 
     socket.on("reconnect", (attemptNumber) => {
       connectionAttempts = 0;
-      console.log("✅ Socket reconnected after", attemptNumber, "attempts");
+      console.log("Socket reconnected after", attemptNumber, "attempts");
     });
 
     socket.on("reconnect_attempt", () => {
