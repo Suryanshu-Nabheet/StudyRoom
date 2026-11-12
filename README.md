@@ -8,13 +8,13 @@ StudyRoom is a production-ready platform for **live study sessions, classrooms, 
 
 ## Highlights
 
-- High-quality video & audio** – WebRTC + Simple-Peer with fine-tuned connection settings
-- Interactive rooms** – Live video grid, real-time chat, and presence in a unified experience
-- Host controls** – End meeting for everyone, remove participants, and manage room state
-- Real-time telemetry** – Bitrate, RTT, and jitter surfaced in the UI for quick diagnostics
-- Deploy-ready** – Single Node service that runs both Next.js app and Socket.io signaling server
-- Modern UI** – Beautiful glassmorphism design with smooth Framer Motion animations
-- Fully responsive** – Works seamlessly on desktop, tablet, and mobile devices
+- **High-quality video & audio** – WebRTC + Simple-Peer with fine-tuned connection settings
+- **Interactive rooms** – Live video grid, real-time chat, and presence in a unified experience
+- **Host controls** – End meeting for everyone, remove participants, and manage room state
+- **Real-time telemetry** – Bitrate, RTT, and jitter surfaced in the UI for quick diagnostics
+- **Deploy-ready** – Single Node service that runs both Next.js app and Socket.io signaling server
+- **Modern UI** – Beautiful glassmorphism design with smooth Framer Motion animations
+- **Fully responsive** – Works seamlessly on desktop, tablet, and mobile devices
 
 ---
 
